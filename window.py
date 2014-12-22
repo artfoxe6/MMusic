@@ -16,7 +16,7 @@ class main(QWidget):
 		# ==========================头部=================================
 		sp = headWidget(self)   #这里的self就是被移动的窗口
 		sp.setParent (self)  #这里的self是所属父级
-		sp.setStyleSheet("QWidget{background:#7FAEE4}QLabel{color:white}\
+		sp.setStyleSheet("QWidget{background:#7FAEE4;border:1px solid #5FB9FA;border-top:none;border-bottom:none}QLabel{color:white;border:none}\
 			QPushButton{border:none;color:white}QPushButton:hover{color:blue}")
 		sp.setGeometry(0,0,300,200)
 		QLabel(sp).resize(300,120)  #这个自定义myWidget里面必须有东西 不能为空，否则无法定义样式
@@ -75,8 +75,8 @@ class main(QWidget):
 		# =============================底部=============================
 		foot = QWidget(self)
 		foot.setGeometry(0, 560, 300,40)
-		foot.setStyleSheet("QWidget{color:white;background:#7FAEE4;}\
-		QPushButton{border:none;color:white}QPushButton:hover{color:blue}")
+		foot.setStyleSheet("QWidget{color:white;background:#7FAEE4;border:1px solid #5FB9FA;border-top:none;border-bottom:none}\
+		QPushButton{border:none;color:white}QPushButton:hover{color:red}")
 		QPushButton(u"addFile",foot).setGeometry(0,0,60,40)
 		QPushButton(u"搜MV",foot).setGeometry(60,0,60,40)
 		QPushButton(u"热榜",foot).setGeometry(120,0,60,40)
