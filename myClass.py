@@ -23,12 +23,14 @@ class headWidget(QWidget):
 			self.m_drag=True
 			self.window.m_DragPosition=event.globalPos()-self.window.pos()
 			event.accept()
+			self.setCursor(QCursor(Qt.OpenHandCursor))
 	def mouseMoveEvent(self, QMouseEvent):
 		if QMouseEvent.buttons() and Qt.LeftButton and self.m_drag:
 			self.window.move(QMouseEvent.globalPos()-self.window.m_DragPosition)
 			QMouseEvent.accept()
 	def mouseReleaseEvent(self, QMouseEvent):
 		self.m_drag=False
+		self.setCursor(QCursor(Qt.ArrowCursor))
 
 
 
