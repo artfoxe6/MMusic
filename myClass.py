@@ -33,4 +33,18 @@ class headWidget(QWidget):
 		self.setCursor(QCursor(Qt.ArrowCursor))
 
 
+# ================自定义QLabel类=====================
 
+class myLabel(QLabel):
+	def __init__(self,action,player):
+		super(myLabel,self).__init__()
+		self.action = action;
+		self.player = player;
+
+	def mousePressEvent(self,event):
+		if self.action == 'presong':
+			self.player.pre()
+		elif self.action == 'nextsong':
+			self.player.next()
+		elif self.action == "playsong":
+			self.player.playsong()

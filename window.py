@@ -17,10 +17,11 @@ class main(QWidget):
 		self.setGeometry(300, 30, 300,600)
 		self.addLayout()
 		self.player = player(self)
+		self.slowLayout()
 	def  addLayout(self):
 		# ==========================头部=================================
-		sp = headWidget(self)   #这里的self就是被移动的窗口
-		sp.setParent (self)  #这里的self是所属父级
+		self.head = headWidget(self)   #这里的self就是被移动的窗口
+		self.head.setParent (self)  #这里的self是所属父级
 		self.setStyleSheet("QWidget{background:#7FAEE4;border:1px solid #5FB9FA;border-top:none;border-bottom:none}QLabel{color:white;border:none}\
 			QPushButton{border:none;color:white}QPushButton:hover{color:blue}\
 			QSlider{width:300px;height:20px}\
@@ -29,47 +30,49 @@ class main(QWidget):
 			QSlider::add-page:horizontal{background: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 orange, stop:0.25 white, stop:0.5 orange, stop:1 white)}\
 			")
 		#滚动条样式参见：http://blog.sina.com.cn/s/blog_791f544a0100s2ml.html
-		sp.setGeometry(0,0,300,200)
-		QLabel(sp).resize(300,120)  #这个自定义myWidget里面必须有东西 不能为空，否则无法定义样式
+		self.head.setGeometry(0,0,300,200)
+		QLabel(self.head).resize(300,120)  #这个自定义myWidget里面必须有东西 不能为空，否则无法定义样式
 		# label.resize(300,120)
 		# ----------------头部内部组件-------------------------
 		#------播放器名字
-		QLabel(u"～梦音乐v1.0～",sp) .setGeometry(10,5,100,20)
+		QLabel(u"～梦音乐v1.0～",self.head) .setGeometry(10,5,100,20)
 		#------关闭按钮
-		closeBtn = QPushButton(u"关闭",sp) 
+		closeBtn = QPushButton(u"关闭",self.head) 
 		closeBtn.setGeometry(260,5,30,20)
 		closeBtn.clicked.connect(self.quitit)
 		#------隐藏到托盘
-		hideBtn = QPushButton(u"隐藏",sp) 
+		hideBtn = QPushButton(u"隐藏",self.head) 
 		hideBtn.setGeometry(220,5,30,20)
 		hideBtn.clicked.connect(self.hideit)
 		# ------歌手头像
-		self.songerPic = QLabel(sp)
+		self.songerPic = QLabel(self.head)
 		self.songerPic.setGeometry(10,30,72,72)
 		img = QImage("src/songer.png")
 		img = img.scaled(70,120,Qt.KeepAspectRatio)
 		self.songerPic.setPixmap(QPixmap.fromImage(img))
 		# ------当前播放的歌名
-		self.songName = QLabel(u"我可以抱你吗-张惠妹",sp)
+		self.songName = QLabel(u"我可以抱你吗-张惠妹",self.head)
 		self.songName.setGeometry(110,25,200,20)
-		#-------上一曲
-		self.preSong = QLabel(sp) 
-		self.preSong.setGeometry(120,60,24,24)
-		img = QImage("src/pre.png")
-		img = img.scaled(24,24,Qt.KeepAspectRatio)
-		self.preSong.setPixmap(QPixmap.fromImage(img))
-		#--------播放
-		self.play = QLabel(sp) 
-		self.play.setGeometry(160,48,50,50)
-		img = QImage("src/play.png")
-		img = img.scaled(48,48,Qt.KeepAspectRatio)
-		self.play.setPixmap(QPixmap.fromImage(img))
-		#--------下一曲
-		self.nextSong = QLabel(sp) 
-		self.nextSong.setGeometry(225,60,24,24)
-		img = QImage("src/next.png")
-		img = img.scaled(24,24,Qt.KeepAspectRatio)
-		self.nextSong.setPixmap(QPixmap.fromImage(img))
+		# #-------上一曲
+		# self.preSong = myLabel('presong',self.player) 
+		# self.preSong.setParent(self.head)
+		# self.preSong.setGeometry(120,60,24,24)
+		# img = QImage("src/pre.png")
+		# img = img.scaled(24,24,Qt.KeepAspectRatio)
+		# self.preSong.setPixmap(QPixmap.fromImage(img))
+		# self.preSong.clicked.connect(self.presong)
+		# #--------播放
+		# self.play = QLabel(self.head) 
+		# self.play.setGeometry(160,48,50,50)
+		# img = QImage("src/play.png")
+		# img = img.scaled(48,48,Qt.KeepAspectRatio)
+		# self.play.setPixmap(QPixmap.fromImage(img))
+		# #--------下一曲
+		# self.nextSong = QLabel(self.head) 
+		# self.nextSong.setGeometry(225,60,24,24)
+		# img = QImage("src/next.png")
+		# img = img.scaled(24,24,Qt.KeepAspectRatio)
+		# self.nextSong.setPixmap(QPixmap.fromImage(img))
 		# ===========================进度条==============================
 		self.proWgt = QWidget(self)
 		self.proWgt.setGeometry(0, 110, 300,10)
@@ -106,6 +109,29 @@ class main(QWidget):
 		trayIconMenu.addAction(quitAction)
 		tray.setContextMenu(trayIconMenu)
 		tray.show()
+	# -----------------由于组件之间逻辑先后调用，把一部分组件延后加载-----------------
+	def slowLayout(self):
+		#-------上一曲
+		self.preSong = myLabel('presong',self.player) 
+		self.preSong.setParent(self.head)
+		self.preSong.setGeometry(120,60,24,24)
+		img = QImage("src/pre.png")
+		img = img.scaled(24,24,Qt.KeepAspectRatio)
+		self.preSong.setPixmap(QPixmap.fromImage(img))
+		#--------下一曲
+		self.nextSong = myLabel('nextsong',self.player) 
+		self.nextSong.setParent(self.head)
+		self.nextSong.setGeometry(225,60,24,24)
+		img = QImage("src/next.png")
+		img = img.scaled(24,24,Qt.KeepAspectRatio)
+		self.nextSong.setPixmap(QPixmap.fromImage(img))
+		#--------播放
+		self.play = myLabel('playsong',self.player) 
+		self.play.setParent(self.head)
+		self.play.setGeometry(160,48,50,50)
+		img = QImage("src/play.png")
+		img = img.scaled(48,48,Qt.KeepAspectRatio)
+		self.play.setPixmap(QPixmap.fromImage(img))
 	# ===========================回调函数===========================
 	def quitit(self):
 		self.close()
@@ -115,6 +141,8 @@ class main(QWidget):
 		self.hide()
 	def playit(self,item):
 		self.player.playit(item.text())
+	def presong(self):
+		print 'ok'
 	# ========================================================
 		
 
