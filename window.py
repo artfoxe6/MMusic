@@ -23,7 +23,7 @@ class main(QWidget):
 		# label.resize(300,120)
 		# ----------------头部内部组件-------------------------
 		#------播放器名字
-		QLabel(u"~梦音乐v1.0",sp) .setGeometry(10,5,100,20)
+		QLabel(u"～梦音乐v1.0～",sp) .setGeometry(10,5,100,20)
 		#------关闭按钮
 		closeBtn = QPushButton(u"关闭",sp) 
 		closeBtn.setGeometry(260,5,30,20)
