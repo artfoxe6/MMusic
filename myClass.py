@@ -47,4 +47,4 @@ class myLabel(QLabel):
 		elif self.action == 'nextsong':
 			self.player.next()
 		elif self.action == "playsong":
-			self.player.playsong()
+			self.player.pause()

@@ -23,11 +23,15 @@ class main(QWidget):
 		self.head = headWidget(self)   #这里的self就是被移动的窗口
 		self.head.setParent (self)  #这里的self是所属父级
 		self.setStyleSheet("QWidget{background:#7FAEE4;border:1px solid #5FB9FA;border-top:none;border-bottom:none}QLabel{color:white;border:none}\
+			QSlider{width:300px;height:10px}\
 			QPushButton{border:none;color:white}QPushButton:hover{color:blue}\
-			QSlider{width:300px;height:20px}\
-			QSlider::handle:horizontal{background:#2EB4FF;width:18px;}\
-			QSlider::sub-page:horizontal{background: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 pink, stop:0.25 blue, stop:0.5 blue, stop:1 pink)}\
-			QSlider::add-page:horizontal{background: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 orange, stop:0.25 white, stop:0.5 orange, stop:1 white)}\
+			QSlider::groove:horizontal { border: 1px solid #999999;height: 10px; margin: 0px 0;    }\
+	            QSlider::handle:horizontal  { border: 1px solid #5c5c5c;border-image:url(src/ico.png);width: 18px;margin: -7px -7px -7px -7px; }\
+	            QSlider::sub-page:horizontal{ background: QLinearGradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #9EEAFD, stop:0.25 \
+	                #627BF3, stop:0.5 #627BF3, stop:1 #9EEAFD);    }\
+	            QSlider::add-page:horizontal{background:QLinearGradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #9EEAFD, \
+	                stop:0.25 #E6E6E6, stop:0.5 #E6E6E6, stop:1 #9EEAFD);}\
+	        VolumeSlider{background:red}\
 			")
 		#滚动条样式参见：http://blog.sina.com.cn/s/blog_791f544a0100s2ml.html
 		self.head.setGeometry(0,0,300,200)
@@ -53,26 +57,6 @@ class main(QWidget):
 		# ------当前播放的歌名
 		self.songName = QLabel(u"我可以抱你吗-张惠妹",self.head)
 		self.songName.setGeometry(110,25,200,20)
-		# #-------上一曲
-		# self.preSong = myLabel('presong',self.player) 
-		# self.preSong.setParent(self.head)
-		# self.preSong.setGeometry(120,60,24,24)
-		# img = QImage("src/pre.png")
-		# img = img.scaled(24,24,Qt.KeepAspectRatio)
-		# self.preSong.setPixmap(QPixmap.fromImage(img))
-		# self.preSong.clicked.connect(self.presong)
-		# #--------播放
-		# self.play = QLabel(self.head) 
-		# self.play.setGeometry(160,48,50,50)
-		# img = QImage("src/play.png")
-		# img = img.scaled(48,48,Qt.KeepAspectRatio)
-		# self.play.setPixmap(QPixmap.fromImage(img))
-		# #--------下一曲
-		# self.nextSong = QLabel(self.head) 
-		# self.nextSong.setGeometry(225,60,24,24)
-		# img = QImage("src/next.png")
-		# img = img.scaled(24,24,Qt.KeepAspectRatio)
-		# self.nextSong.setPixmap(QPixmap.fromImage(img))
 		# ===========================进度条==============================
 		self.proWgt = QWidget(self)
 		self.proWgt.setGeometry(0, 110, 300,10)
@@ -141,8 +125,8 @@ class main(QWidget):
 		self.hide()
 	def playit(self,item):
 		self.player.playit(item.text())
-	def presong(self):
-		print 'ok'
+	# def presong(self):
+	# 	print 'ok'
 	# ========================================================
 		
 

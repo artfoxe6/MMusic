@@ -34,16 +34,16 @@ class player():
 			window.songList.addItem(item)
 		#----------加载进度条----------
 		self.seek = Phonon.SeekSlider(self.mediaObject,window.proWgt) 
-    # ==============================播放、暂停======================================
+		self.seek.setIconVisible(False)
+
+    # ==============================指定播放======================================
 	def playit(self,songUrl=''):    #指定播放
 		songNum = (int)(songUrl[1])-1
 		songUrl = self.songlist[songNum]
 		self.songing = int(songNum)
-		# print u""+songUrl+""
+		print u""+songUrl+""
 		self.mediaObject.setCurrentSource(Phonon.MediaSource(u""+songUrl+""))
 		self.mediaObject.play()  
-	def playsong(self):  #自动播放当前item
-		print 'playsong'
 	# ==============================下一曲====================================
 	def next(self):
 		lens = len(self.songlist)
@@ -70,33 +70,32 @@ class player():
 		songUrl = self.songlist[self.songing]
 		self.mediaObject.setCurrentSource(Phonon.MediaSource(u""+songUrl+""))
 		self.mediaObject.play()
-
+	#============================播放暂停=====================================
+	def pause(self):
+		if self.mediaObject.state() == Phonon.PlayingState:
+			self.mediaObject.pause()
+		elif self.mediaObject.state() == Phonon.PausedState:
+			self.mediaObject.play() 
 # ============================回调函数============================================
 	# ------------播放状态发生改变-----------------------
 	def handleStateChanged(self, newstate, oldstate):
 		if newstate == Phonon.PlayingState:  
-			print 'playing'
+			#改变播放按钮状态
+			img = QImage("src/pause.png")
+			img = img.scaled(48,48,Qt.KeepAspectRatio)
+			self.window.play.setPixmap(QPixmap.fromImage(img))
+			#把正在播放的歌曲标记未选择状态
+			self.window.songList.setCurrentItem(self.window.songList.item(self.songing))
 		elif newstate == Phonon.StoppedState:
-			print u"停止"
-			
+			pass
 		elif newstate == Phonon.PausedState:
-			print u"暂停"
-			lens = len(self.songlist)
-			if lens-self.songing>1:
-				self.songing += 1
-			else:
-				self.songing = 0
-			songUrl = self.songlist[self.songing]
-			self.mediaObject.setCurrentSource(Phonon.MediaSource(u""+songUrl+""))
-			self.mediaObject.play()
-				
+			img = QImage("src/play.png")
+			img = img.scaled(48,48,Qt.KeepAspectRatio)
+			self.window.play.setPixmap(QPixmap.fromImage(img))
 		elif newstate == Phonon.ErrorState:  
 			source = self.mediaObject.currentSource().fileName()   #抛出播放出错的文件名
 			print 'ERROR: could not play:', source.toLocal8Bit().data()
   # ========================事件集合========================================
-
-  	def evt(self):
-  		self.mediaObject.stateChanged.connect(self.handleStateChanged)  #播放状态改变触发事件
 
 if __name__ == "__main__":
 	fp = open("songs.list")
