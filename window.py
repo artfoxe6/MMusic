@@ -1,10 +1,14 @@
 #!/user/bin/env python
 #coding=utf-8
+"""
+播放器框架，只负责外观，不涉及逻辑
+"""
 
 import sys,os
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from myClass import *
+from phonon import *
 
 class main(QWidget):
 	def __init__(self):
@@ -12,12 +16,19 @@ class main(QWidget):
 		self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
 		self.setGeometry(300, 30, 300,600)
 		self.addLayout()
+		self.player = player(self)
 	def  addLayout(self):
 		# ==========================头部=================================
 		sp = headWidget(self)   #这里的self就是被移动的窗口
 		sp.setParent (self)  #这里的self是所属父级
-		sp.setStyleSheet("QWidget{background:#7FAEE4;border:1px solid #5FB9FA;border-top:none;border-bottom:none}QLabel{color:white;border:none}\
-			QPushButton{border:none;color:white}QPushButton:hover{color:blue}")
+		self.setStyleSheet("QWidget{background:#7FAEE4;border:1px solid #5FB9FA;border-top:none;border-bottom:none}QLabel{color:white;border:none}\
+			QPushButton{border:none;color:white}QPushButton:hover{color:blue}\
+			QSlider{width:300px;height:20px}\
+			QSlider::handle:horizontal{background:#2EB4FF;width:18px;}\
+			QSlider::sub-page:horizontal{background: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 pink, stop:0.25 blue, stop:0.5 blue, stop:1 pink)}\
+			QSlider::add-page:horizontal{background: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 orange, stop:0.25 white, stop:0.5 orange, stop:1 white)}\
+			")
+		#滚动条样式参见：http://blog.sina.com.cn/s/blog_791f544a0100s2ml.html
 		sp.setGeometry(0,0,300,200)
 		QLabel(sp).resize(300,120)  #这个自定义myWidget里面必须有东西 不能为空，否则无法定义样式
 		# label.resize(300,120)
@@ -33,45 +44,47 @@ class main(QWidget):
 		hideBtn.setGeometry(220,5,30,20)
 		hideBtn.clicked.connect(self.hideit)
 		# ------歌手头像
-		songerPic = QLabel(sp)
-		songerPic.setGeometry(10,30,72,72)
+		self.songerPic = QLabel(sp)
+		self.songerPic.setGeometry(10,30,72,72)
 		img = QImage("src/songer.png")
 		img = img.scaled(70,120,Qt.KeepAspectRatio)
-		songerPic.setPixmap(QPixmap.fromImage(img))
+		self.songerPic.setPixmap(QPixmap.fromImage(img))
 		# ------当前播放的歌名
-		QLabel(u"我可以抱你吗-张惠妹",sp).setGeometry(110,25,200,20)
+		self.songName = QLabel(u"我可以抱你吗-张惠妹",sp)
+		self.songName.setGeometry(110,25,200,20)
 		#-------上一曲
-		preSong = QLabel(sp) 
-		preSong.setGeometry(120,60,24,24)
+		self.preSong = QLabel(sp) 
+		self.preSong.setGeometry(120,60,24,24)
 		img = QImage("src/pre.png")
 		img = img.scaled(24,24,Qt.KeepAspectRatio)
-		preSong.setPixmap(QPixmap.fromImage(img))
+		self.preSong.setPixmap(QPixmap.fromImage(img))
 		#--------播放
-		preSong = QLabel(sp) 
-		preSong.setGeometry(160,48,50,50)
+		self.play = QLabel(sp) 
+		self.play.setGeometry(160,48,50,50)
 		img = QImage("src/play.png")
 		img = img.scaled(48,48,Qt.KeepAspectRatio)
-		preSong.setPixmap(QPixmap.fromImage(img))
+		self.play.setPixmap(QPixmap.fromImage(img))
 		#--------下一曲
-		preSong = QLabel(sp) 
-		preSong.setGeometry(225,60,24,24)
+		self.nextSong = QLabel(sp) 
+		self.nextSong.setGeometry(225,60,24,24)
 		img = QImage("src/next.png")
 		img = img.scaled(24,24,Qt.KeepAspectRatio)
-		preSong.setPixmap(QPixmap.fromImage(img))
-		# ===========================滚动条==============================
-		proWgt = QWidget(self)
-		proWgt.setGeometry(0, 110, 300,10)
-		proWgt.setStyleSheet("QWidget{background-color:#C9C9C9;border:1px solid #5FB9FA;border-top:none;border-bottom:none}\
+		self.nextSong.setPixmap(QPixmap.fromImage(img))
+		# ===========================进度条==============================
+		self.proWgt = QWidget(self)
+		self.proWgt.setGeometry(0, 110, 300,10)
+		self.proWgt.setStyleSheet("QWidget{background-color:#C9C9C9;border:1px solid #5FB9FA;border-top:none;border-bottom:none}\
 		    SeekSlider{width:300}")
 		# ===========================歌曲列表==============================
 		listWgt = QWidget(self)
 		listWgt.setGeometry(0, 120, 300,440)
 		listWgt.setStyleSheet("QWidget{color:white;background:white;border:1px solid #5FB9FA;border-top:none;border-bottom:none}")
-		songList = QListWidget(listWgt)
-		songList.resize(260,440)   
-		songList.setStyleSheet("QListWidget{color:gray;font-size:12px;background:#FAFAFD;}\
+		self.songList = QListWidget(listWgt)
+		self.songList.resize(260,440)   
+		self.songList.setStyleSheet("QListWidget{color:gray;font-size:12px;background:#FAFAFD;}\
 		    QScrollBar{width:0;height:0}\
 		    ")
+		self.songList.itemDoubleClicked.connect(self.playit)
 		# =============================底部=============================
 		foot = QWidget(self)
 		foot.setGeometry(0, 560, 300,40)
@@ -100,6 +113,8 @@ class main(QWidget):
 		self.show()
 	def hideit(self):
 		self.hide()
+	def playit(self,item):
+		self.player.playit(item.text())
 	# ========================================================
 		
 
