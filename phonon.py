@@ -18,6 +18,7 @@ class player():
 		self.mediaObject = Phonon.MediaObject(self.window)   #实例化一个媒体对象
 		self.audioOutput = Phonon.AudioOutput(Phonon.MusicCategory, self.window)   #实例化音频输出
 		Phonon.createPath(self.mediaObject, self.audioOutput)   #将上面的媒体对象作为音频来源并对接到音频输出
+		self.mediaObject.stateChanged.connect(self.handleStateChanged)  #播放状态改变触发事件
 		# -------加载播放列表----------
 		self.songlist = {}
 		self.songing = -1   #当前播放的歌曲编号
@@ -35,7 +36,8 @@ class player():
 	def playit(self,songUrl=''):
 		songNum = (int)(songUrl[1])-1
 		songUrl = self.songlist[songNum]
-		print u""+songUrl+""
+		self.songing = int(songNum)
+		# print u""+songUrl+""
 		self.mediaObject.setCurrentSource(Phonon.MediaSource(u""+songUrl+""))
 		self.mediaObject.play()  
 	# ==============================下一曲====================================
@@ -47,25 +49,23 @@ class player():
 
 # ============================回调函数============================================
 	# ------------播放状态发生改变-----------------------
-	def handleButton(self):   
-		if self.mediaObject.state() == Phonon.PlayingState:
-			pass
-		elif  self.mediaObject.state() == Phonon.PausedState:
-			pass
-		elif  self.mediaObject.state() == Phonon.StoppedState:
-			pass
-		elif  self.mediaObject.state() == Phonon.ErrorState:
-			pass
-
-            
-
 	def handleStateChanged(self, newstate, oldstate):
 		if newstate == Phonon.PlayingState:  
-			pass
+			print 'playing'
 		elif newstate == Phonon.StoppedState:
-			pass
+			print u"停止"
+			
 		elif newstate == Phonon.PausedState:
-			pass
+			print u"暂停"
+			lens = len(self.songlist)
+			if lens-self.songing>0:
+				songUrl = self.songlist[self.songing+1]
+				self.mediaObject.setCurrentSource(Phonon.MediaSource(u""+songUrl+""))
+				self.mediaObject.play()
+			else:
+				songUrl = self.songlist[0]
+				self.mediaObject.setCurrentSource(Phonon.MediaSource(u""+songUrl+""))
+				self.mediaObject.play()
 		elif newstate == Phonon.ErrorState:  
 			pass
   # ========================事件集合========================================

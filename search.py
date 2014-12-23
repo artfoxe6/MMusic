@@ -48,5 +48,5 @@ class BaiDuMusic():
     
 
 if __name__=='__main__':
-    bMusic = BaiDuMusic(u"冰雨",'music/')
+    bMusic = BaiDuMusic(u"我可以抱你吗",'music/')
     bMusic.search()
