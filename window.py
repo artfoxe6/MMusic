@@ -130,9 +130,9 @@ class main(QWidget):
 	def selectDir(self):
 		path = QFileDialog.getExistingDirectory(self.popWg)
 		self.popWg.line.setText(path)
-		fil = open("local.ini","r").read().split("+++")
+		fil = open("local.py","r").read().split("+++")
 		fil[0] = str(path)
-		open("local.ini","w").write("+++".join(fil))
+		open("local.py","w").write("+++".join(fil))
 	#打开设置窗口
 	def setFunc(self):
 		self.popWg = popWindow (self.pos())

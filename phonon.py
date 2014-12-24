@@ -24,7 +24,7 @@ class player():
 		# -------加载播放列表----------
 		self.songlist = {}
 		self.songing = -5   #当前播放的歌曲编号
-		songpath = open("local.ini","r").read().split("+++")[0]
+		songpath = open("local.py","r").read().split("+++")[0]
 		listfile=os.listdir(songpath)
 		for index ,value in enumerate (listfile): 
 			print index,value
