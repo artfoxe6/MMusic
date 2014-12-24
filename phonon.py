@@ -18,33 +18,37 @@ class player():
 		self.mediaObject = Phonon.MediaObject(self.window)   #实例化一个媒体对象
 		self.audioOutput = Phonon.AudioOutput(Phonon.MusicCategory, self.window)   #实例化音频输出
 		Phonon.createPath(self.mediaObject, self.audioOutput)   #将上面的媒体对象作为音频来源并对接到音频输出
-		self.mediaObject.stateChanged.connect(self.handleStateChanged)  #播放状态改变触发事件
+		self.mediaObject.stateChanged.connect(self.stateChange)  #播放状态改变触发事件
+		self.mediaObject.finished.connect(self.Finished)  #播放状态改变触发事件
+		
 		# -------加载播放列表----------
 		self.songlist = {}
 		self.songing = -5   #当前播放的歌曲编号
-		fp = open("songs.list")
-		s = fp.read()
-		arr = s.split("\n")
-		for index ,value in enumerate (arr): 
+		songpath = open("local.ini","r").read().split("+++")[0]
+		listfile=os.listdir(songpath)
+		for index ,value in enumerate (listfile): 
+			print index,value
 			if value == '':
 				continue
-			self.songlist[index] = value
+			self.songlist[index] = songpath+"/"+value
 			item = QListWidgetItem (" "+str(index+1)+"   "+u""+os.path.basename(value)+"")
 			item.setSizeHint (QSize(250,35))
 			window.songList.addItem(item)
 		#----------加载进度条----------
 		self.seek = Phonon.SeekSlider(self.mediaObject,window.proWgt) 
 		self.seek.setIconVisible(False)
+		#-----------------把歌曲添加到mediaObject--------------------------------
 
     # ==============================指定播放======================================
 	def playit(self,songUrl=''):    
+		print songUrl
 		songNum = (int)(songUrl[1])-1
 		songUrl = self.songlist[songNum]
 		self.songing = int(songNum)
-		print u""+songUrl+""
+		# print u""+songUrl+""
 		self.mediaObject.setCurrentSource(Phonon.MediaSource(u""+songUrl+""))
 		self.mediaObject.play()  
-		self.userPause = False  #是否是用户主动暂停的  还是播放完一首歌曲后自动暂停
+		
 	# ==============================下一曲====================================
 	def next(self):
 		lens = len(self.songlist)
@@ -60,7 +64,7 @@ class player():
 			self.mediaObject.setCurrentSource(Phonon.MediaSource(u""+songUrl+""))
 			self.mediaObject.play()
 			self.songing = 0
-		self.userPause = False
+		
 	# ===============================上一曲=====================================
 	def pre(self):
 		if self.songing == -5:
@@ -72,18 +76,20 @@ class player():
 		songUrl = self.songlist[self.songing]
 		self.mediaObject.setCurrentSource(Phonon.MediaSource(u""+songUrl+""))
 		self.mediaObject.play()
-		self.userPause = False
+		
 	#============================播放暂停=====================================
 	def pause(self):
 		if self.mediaObject.state() == Phonon.PlayingState:
 			self.mediaObject.pause()
-			self.userPause = True
+			
 		elif self.mediaObject.state() == Phonon.PausedState:
 			self.mediaObject.play() 
-			self.userPause = False
+		elif self.mediaObject.state() == Phonon.StoppedState:
+			self.next()
+			
 # ============================回调函数============================================
 	# ------------播放状态发生改变-----------------------
-	def handleStateChanged(self, newstate, oldstate):
+	def stateChange(self, newstate, oldstate):
 		if newstate == Phonon.PlayingState:  
 			#改变播放按钮状态
 			img = QImage("src/pause.png")
@@ -97,12 +103,11 @@ class player():
 			img = QImage("src/play.png")
 			img = img.scaled(48,48,Qt.KeepAspectRatio)
 			self.window.play.setPixmap(QPixmap.fromImage(img))
-			#自动播放下一首
-			if not self.userPause:
-				self.next()
 		elif newstate == Phonon.ErrorState:  
 			source = self.mediaObject.currentSource().fileName()   #抛出播放出错的文件名
 			print 'ERROR: could not play:', source.toLocal8Bit().data()
+	def Finished(self):
+		self.next()
   # ========================事件集合========================================
 
 if __name__ == "__main__":

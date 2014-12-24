@@ -77,8 +77,10 @@ class main(QWidget):
 		foot.setGeometry(0, 560, 300,40)
 		foot.setStyleSheet("QWidget{color:white;background:#7FAEE4;border:1px solid #5FB9FA;border-top:none;border-bottom:none}\
 		QPushButton{border:none;color:white}QPushButton:hover{color:red}")
-		QPushButton(u"addFile",foot).setGeometry(0,0,60,40)
-		QPushButton(u"搜MV",foot).setGeometry(60,0,60,40)
+		setBtn = QPushButton(u"设置",foot)
+		setBtn.setGeometry(0,0,60,40)
+		setBtn.clicked.connect(self.setFunc)
+		QPushButton(u"MV",foot).setGeometry(60,0,60,40)
 		QPushButton(u"热榜",foot).setGeometry(120,0,60,40)
 		QPushButton(u"新歌",foot).setGeometry(180,0,60,40)
 		QPushButton(u"搜歌",foot).setGeometry(240,0,60,40)
@@ -125,10 +127,27 @@ class main(QWidget):
 		self.hide()
 	def playit(self,item):
 		self.player.playit(item.text())
-	# def presong(self):
-	# 	print 'ok'
+	def selectDir(self):
+		path = QFileDialog.getExistingDirectory(self.popWg)
+		self.popWg.line.setText(path)
+		fil = open("local.ini","r").read().split("+++")
+		fil[0] = str(path)
+		open("local.ini","w").write("+++".join(fil))
+	#打开设置窗口
+	def setFunc(self):
+		self.popWg = popWindow (self.pos())
+		self.popWg.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+		lab = QLabel(u"默认歌曲路径",self.popWg)
+		lab.setGeometry(10,40,200,25)
+		self.popWg.line = QLineEdit(self.popWg)
+		self.popWg.line.setGeometry(10,65,400,30)
+		btn = QPushButton(u"选择文件夹",self.popWg)
+		btn.setGeometry(410,65,100,30)
+		btn.clicked.connect(self.selectDir)
+		self.popWg.show()
 	# ========================================================
-		
+
+
 
 if __name__ == "__main__":
 	app = QApplication(sys.argv)
