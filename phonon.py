@@ -92,6 +92,8 @@ class player():
 			img = QImage("src/play.png")
 			img = img.scaled(48,48,Qt.KeepAspectRatio)
 			self.window.play.setPixmap(QPixmap.fromImage(img))
+			#自动播放下一首
+			self.next()
 		elif newstate == Phonon.ErrorState:  
 			source = self.mediaObject.currentSource().fileName()   #抛出播放出错的文件名
 			print 'ERROR: could not play:', source.toLocal8Bit().data()
