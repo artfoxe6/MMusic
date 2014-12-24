@@ -131,8 +131,9 @@ class main(QWidget):
 		path = QFileDialog.getExistingDirectory(self.popWg)
 		self.popWg.line.setText(path)
 		fil = open("local.py","r").read().split("+++")
-		fil[0] = str(path)
-		open("local.py","w").write("+++".join(fil))
+		if path:
+			fil[0] = str(path)
+			open("local.py","w").write("+++".join(fil))
 	#打开设置窗口
 	def setFunc(self):
 		self.popWg = popWindow (self.pos())
