@@ -37,13 +37,14 @@ class player():
 		self.seek.setIconVisible(False)
 
     # ==============================指定播放======================================
-	def playit(self,songUrl=''):    #指定播放
+	def playit(self,songUrl=''):    
 		songNum = (int)(songUrl[1])-1
 		songUrl = self.songlist[songNum]
 		self.songing = int(songNum)
 		print u""+songUrl+""
 		self.mediaObject.setCurrentSource(Phonon.MediaSource(u""+songUrl+""))
 		self.mediaObject.play()  
+		self.userPause = False  #是否是用户主动暂停的  还是播放完一首歌曲后自动暂停
 	# ==============================下一曲====================================
 	def next(self):
 		lens = len(self.songlist)
@@ -59,6 +60,7 @@ class player():
 			self.mediaObject.setCurrentSource(Phonon.MediaSource(u""+songUrl+""))
 			self.mediaObject.play()
 			self.songing = 0
+		self.userPause = False
 	# ===============================上一曲=====================================
 	def pre(self):
 		if self.songing == -5:
@@ -70,12 +72,15 @@ class player():
 		songUrl = self.songlist[self.songing]
 		self.mediaObject.setCurrentSource(Phonon.MediaSource(u""+songUrl+""))
 		self.mediaObject.play()
+		self.userPause = False
 	#============================播放暂停=====================================
 	def pause(self):
 		if self.mediaObject.state() == Phonon.PlayingState:
 			self.mediaObject.pause()
+			self.userPause = True
 		elif self.mediaObject.state() == Phonon.PausedState:
 			self.mediaObject.play() 
+			self.userPause = False
 # ============================回调函数============================================
 	# ------------播放状态发生改变-----------------------
 	def handleStateChanged(self, newstate, oldstate):
@@ -93,7 +98,8 @@ class player():
 			img = img.scaled(48,48,Qt.KeepAspectRatio)
 			self.window.play.setPixmap(QPixmap.fromImage(img))
 			#自动播放下一首
-			self.next()
+			if not self.userPause:
+				self.next()
 		elif newstate == Phonon.ErrorState:  
 			source = self.mediaObject.currentSource().fileName()   #抛出播放出错的文件名
 			print 'ERROR: could not play:', source.toLocal8Bit().data()
