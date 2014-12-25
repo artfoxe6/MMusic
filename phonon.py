@@ -20,37 +20,48 @@ class player():
 		Phonon.createPath(self.mediaObject, self.audioOutput)   #将上面的媒体对象作为音频来源并对接到音频输出
 		self.mediaObject.stateChanged.connect(self.stateChange)  #播放状态改变触发事件
 		self.mediaObject.finished.connect(self.Finished)  #播放状态改变触发事件
-		
+		#----------加载进度条----------
+		self.seek = Phonon.SeekSlider(self.mediaObject,window.proWgt) 
+		self.seek.setIconVisible(False)
+		# -----------加载音量条----------
+		self.vlu = Phonon.VolumeSlider (self.audioOutput,window.vluWgt) 
+		self.vlu.setMuteVisible(False)
+		self.vlu.setMaximumVolume(1.5)
+		#----------加载播放列表--------
+		self.playlist()
+	def playlist(self):
 		# -------加载播放列表----------
+		self.window.songList.clear()
 		self.songlist = {}
 		self.songing = -5   #当前播放的歌曲编号
 		songpath = open("local.py","r").read().split("+++")[0]
 		if songpath == "":
 			songpath = "music"
-		listfile=os.listdir(songpath)
+		listfile = []
+		try:
+			listfile=os.listdir(songpath)
+		except Exception, e:
+			print e
 		for index ,value in enumerate (listfile): 
-			print index,value
-			if value == '':
+			if value == '' or value[-3:] != 'mp3':
 				continue
 			self.songlist[index] = songpath+"/"+value
-			print self.songlist[index]
-			item = QListWidgetItem (" "+str(index+1)+"   "+os.path.basename(value))
+			# print self.songlist[index]
+			item = QListWidgetItem ("   "+str(index+1)+"   "+os.path.basename(value)[0:-4])
 			item.setSizeHint (QSize(250,35))
-			window.songList.addItem(item)
-		#----------加载进度条----------
-		self.seek = Phonon.SeekSlider(self.mediaObject,window.proWgt) 
-		self.seek.setIconVisible(False)
-		#-----------------把歌曲添加到mediaObject--------------------------------
+			self.window.songList.addItem(item)
 
     # ==============================指定播放======================================
 	def playit(self,songUrl=''):    
-		print str(songUrl).decode('utf-8')
-		songNum = (int)(songUrl[1])-1
+		# print str(songUrl).decode('utf-8')
+		songUrl = songUrl.split("  ")[1]
+		songNum = (int)(songUrl)-1
 		songUrl = self.songlist[songNum]
 		self.songing = int(songNum)
 		# print u""+songUrl+""
 		self.mediaObject.setCurrentSource(Phonon.MediaSource(songUrl))
 		self.mediaObject.play()  
+		self.window.songName.setText( os.path.basename(songUrl)[:-4] )
 		
 	# ==============================下一曲====================================
 	def next(self):

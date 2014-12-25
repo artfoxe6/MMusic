@@ -9,6 +9,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from myClass import *
 from phonon import *
+from mv import *
 
 class main(QWidget):
 	def __init__(self):
@@ -56,7 +57,8 @@ class main(QWidget):
 		self.songerPic.setPixmap(QPixmap.fromImage(img))
 		# ------当前播放的歌名
 		self.songName = QLabel(u"我可以抱你吗-张惠妹",self.head)
-		self.songName.setGeometry(110,25,200,20)
+		self.songName.setAlignment(Qt.AlignHCenter)
+		self.songName.setGeometry(110,25,150,20)
 		# ===========================进度条==============================
 		self.proWgt = QWidget(self)
 		self.proWgt.setGeometry(0, 110, 300,10)
@@ -64,14 +66,19 @@ class main(QWidget):
 		    SeekSlider{width:300}")
 		# ===========================歌曲列表==============================
 		listWgt = QWidget(self)
-		listWgt.setGeometry(0, 120, 300,440)
+		listWgt.setGeometry(0, 120, 300,430)
 		listWgt.setStyleSheet("QWidget{color:white;background:white;border:1px solid #5FB9FA;border-top:none;border-bottom:none}")
 		self.songList = QListWidget(listWgt)
-		self.songList.resize(260,440)   
+		self.songList.resize(260,430)   
 		self.songList.setStyleSheet("QListWidget{color:gray;font-size:12px;background:#FAFAFD;}\
 		    QScrollBar{width:0;height:0}\
 		    ")
 		self.songList.itemDoubleClicked.connect(self.playit)
+		# ================================音量========================
+		self.vluWgt = QWidget(self)
+		self.vluWgt.setGeometry(0, 550, 300,10)
+		self.vluWgt.setStyleSheet("QWidget{background-color:#C9C9C9;border:1px solid #5FB9FA;border-top:none;border-bottom:none}\
+		    SeekSlider{width:300}")
 		# =============================底部=============================
 		foot = QWidget(self)
 		foot.setGeometry(0, 560, 300,40)
@@ -80,7 +87,10 @@ class main(QWidget):
 		setBtn = QPushButton(u"设置",foot)
 		setBtn.setGeometry(0,0,60,40)
 		setBtn.clicked.connect(self.setFunc)
-		QPushButton(u"MV",foot).setGeometry(60,0,60,40)
+		mvBtn = QPushButton(u"MV",foot)
+		mvBtn.setGeometry(60,0,60,40)
+		mvBtn.clicked.connect(self.mvFunc)
+
 		QPushButton(u"热榜",foot).setGeometry(120,0,60,40)
 		QPushButton(u"新歌",foot).setGeometry(180,0,60,40)
 		QPushButton(u"搜歌",foot).setGeometry(240,0,60,40)
@@ -95,6 +105,7 @@ class main(QWidget):
 		trayIconMenu.addAction(quitAction)
 		tray.setContextMenu(trayIconMenu)
 		tray.show()
+		tray.activated.connect(self.trayIcon_DoubleClicked)
 	# -----------------由于组件之间逻辑先后调用，把一部分组件延后加载-----------------
 	def slowLayout(self):
 		#-------上一曲
@@ -128,24 +139,62 @@ class main(QWidget):
 	def playit(self,item):
 		self.player.playit(item.text())
 	def selectDir(self):
-		path = QFileDialog.getExistingDirectory(self.popWg)
-		self.popWg.line.setText(path)
+		path = QFileDialog.getExistingDirectory(self.popSetWg)
+		self.popSetWg.line.setText(path)
 		fil = open("local.py","r").read().split("+++")
 		if path:
 			fil[0] = str(path)
 			open("local.py","w").write("+++".join(fil))
+			self.player.playlist()
+	def trayIcon_DoubleClicked(self,event):
+		if event==QSystemTrayIcon.DoubleClick:
+			self.show()
 	#打开设置窗口
 	def setFunc(self):
-		self.popWg = popWindow (self.pos())
-		self.popWg.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
-		lab = QLabel(u"默认歌曲路径",self.popWg)
+		self.popSetWg = popWindow (self.pos())
+		self.popSetWg.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+		lab = QLabel(u"默认歌曲路径",self.popSetWg)
 		lab.setGeometry(10,40,200,25)
-		self.popWg.line = QLineEdit(self.popWg)
-		self.popWg.line.setGeometry(10,65,400,30)
-		btn = QPushButton(u"选择文件夹",self.popWg)
+		self.popSetWg.line = QLineEdit(self.popSetWg)
+		self.popSetWg.line.setGeometry(10,65,400,30)
+		btn = QPushButton(u"选择文件夹",self.popSetWg)
 		btn.setGeometry(410,65,100,30)
 		btn.clicked.connect(self.selectDir)
-		self.popWg.show()
+		self.popSetWg.show()
+	#打开mv窗口
+	def mvFunc(self):
+		self.popMvWg = popWindow (self.pos())
+		self.popMvWg.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+		lab = QLabel(u"MV测试",self.popMvWg)
+		lab.setGeometry(10,0,200,25)
+		self.popMvWg.line = QLineEdit(self.popMvWg)
+		self.popMvWg.line.setGeometry(10,35,600,30)
+		btn = QPushButton(u"搜索",self.popMvWg)
+		btn.setGeometry(630,35,100,30)
+		btn.clicked.connect(self.showMv)
+		
+		self.mvbox = QWidget(self.popMvWg)
+		self.mvbox.setGeometry(0,70,800,380)
+		self.mvbox.setStyleSheet("QWidget{background:#DCECFF}")
+		self.popMvWg.show()
+		# -----mv位置布局-----------
+		# mvs = BaiDuMV()
+		# recs = mvs.recommend()
+		# listfile=os.listdir("icon")
+		# print listfile
+		# grid = QGridLayout()
+		# for index ,value in enumerate (recs): 
+		# 	item = QLabel(index,self.player) 
+
+		# 	img = QImage("src/play.png")
+		# 	img = img.scaled(48,48,Qt.KeepAspectRatio)
+		# 	item.setPixmap(QPixmap.fromImage(img))
+		# 	grid.addWidget(QLabel(''), 0, 2)
+
+		
+	#加载MV
+	def showMv(self):
+		pass
 	# ========================================================
 
 

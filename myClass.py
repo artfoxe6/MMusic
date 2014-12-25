@@ -56,12 +56,13 @@ class popWindow(QWidget):
 		super(popWindow,self).__init__()
 		self.move(posi.x()+50,posi.y()+50)
 		self.resize(800,500)
+		self.setStyleSheet("QWidget{background:#DCECFF}QLineEdit{background:none}QLabel{background:none}QPushButton{background:none}")
 
 		head1 = headWidget(self)
 		head1.setParent (self)
 		head1.setGeometry(0,0,800,30)
 		QLabel(head1).resize(800,30) 
-		head1.setStyleSheet("QWidget{background:#7FAEE4}QPushButton{border:none;color:white}QPushButton:hover{color:blue}")
+		head1.setStyleSheet("QWidget{background:#9B0069}QPushButton{border:none;color:white}QPushButton:hover{color:blue}")
 		closeBtn = QPushButton(u"关闭",head1) 
 		closeBtn.setGeometry(750,5,30,20)
 		closeBtn.clicked.connect(self.quit)
@@ -70,7 +71,7 @@ class popWindow(QWidget):
 		head2.setParent (self)
 		head2.setGeometry(0,470,800,30)
 		QLabel(head2).resize(800,30) 
-		head2.setStyleSheet("QWidget{background:#7FAEE4}QPushButton{border:none;color:white}QPushButton:hover{color:blue}")
+		head2.setStyleSheet("QWidget{background:#9B0069}QPushButton{border:none;color:white}QPushButton:hover{color:blue}")
 
 		self.show()
 	def quit(self):
