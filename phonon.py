@@ -3,7 +3,7 @@
 """
 播放相关逻辑
 """
-
+from __future__ import unicode_literals   #防止乱码
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from PyQt4.phonon import Phonon
@@ -33,7 +33,8 @@ class player():
 			if value == '':
 				continue
 			self.songlist[index] = songpath+"/"+value
-			item = QListWidgetItem (" "+str(index+1)+"   "+u""+os.path.basename(value)+"")
+			print self.songlist[index]
+			item = QListWidgetItem (" "+str(index+1)+"   "+os.path.basename(value))
 			item.setSizeHint (QSize(250,35))
 			window.songList.addItem(item)
 		#----------加载进度条----------
@@ -43,12 +44,12 @@ class player():
 
     # ==============================指定播放======================================
 	def playit(self,songUrl=''):    
-		print songUrl
+		print str(songUrl).decode('utf-8')
 		songNum = (int)(songUrl[1])-1
 		songUrl = self.songlist[songNum]
 		self.songing = int(songNum)
 		# print u""+songUrl+""
-		self.mediaObject.setCurrentSource(Phonon.MediaSource(u""+songUrl+""))
+		self.mediaObject.setCurrentSource(Phonon.MediaSource(songUrl))
 		self.mediaObject.play()  
 		
 	# ==============================下一曲====================================
@@ -58,12 +59,12 @@ class player():
 			self.songing = lens-1
 		if lens-self.songing>1:
 			songUrl = self.songlist[self.songing+1]
-			self.mediaObject.setCurrentSource(Phonon.MediaSource(u""+songUrl+""))
+			self.mediaObject.setCurrentSource(Phonon.MediaSource(songUrl))
 			self.mediaObject.play()
 			self.songing = self.songing+1
 		else:
 			songUrl = self.songlist[0]
-			self.mediaObject.setCurrentSource(Phonon.MediaSource(u""+songUrl+""))
+			self.mediaObject.setCurrentSource(Phonon.MediaSource(songUrl))
 			self.mediaObject.play()
 			self.songing = 0
 		
@@ -76,7 +77,7 @@ class player():
 		else:
 			self.songing = len(self.songlist)-1
 		songUrl = self.songlist[self.songing]
-		self.mediaObject.setCurrentSource(Phonon.MediaSource(u""+songUrl+""))
+		self.mediaObject.setCurrentSource(Phonon.MediaSource(songUrl))
 		self.mediaObject.play()
 		
 	#============================播放暂停=====================================

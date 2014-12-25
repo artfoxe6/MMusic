@@ -57,6 +57,14 @@ class BaiDuMusic():
         #     return
         # t=Timer(5,delayrun).start() 
 
+# =================通过歌名搜索歌曲专辑图======================
+
+class songPic:
+    def __init__(self,songName):
+        self.songName = songName
+        self.begin()
+    def begin(self):
+        pass
 
     
 if __name__=='__main__':
