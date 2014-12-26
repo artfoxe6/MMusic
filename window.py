@@ -40,13 +40,15 @@ class main(QWidget):
 		# label.resize(300,120)
 		# ----------------头部内部组件-------------------------
 		#------播放器名字
-		QLabel(u"～梦音乐v1.0～",self.head) .setGeometry(10,5,100,20)
+		QLabel(u" ♫ 梦音乐 ♫ ",self.head) .setGeometry(10,5,100,20)
 		#------关闭按钮
-		closeBtn = QPushButton(u"关闭",self.head) 
+		closeBtn = QPushButton(u"╳",self.head) 
+		# closeBtn.setStyleSheet("QPushButton{border-image:url(src/close11.png)}")
 		closeBtn.setGeometry(260,5,30,20)
 		closeBtn.clicked.connect(self.quitit)
 		#------隐藏到托盘
-		hideBtn = QPushButton(u"隐藏",self.head) 
+		hideBtn = QPushButton(u"一",self.head) 
+		# hideBtn.setStyleSheet("QPushButton{border-image:url(src/sam11.png)}")
 		hideBtn.setGeometry(220,5,30,20)
 		hideBtn.clicked.connect(self.hideit)
 		# ------歌手头像
@@ -112,21 +114,21 @@ class main(QWidget):
 		self.preSong = myLabel('presong',self.player) 
 		self.preSong.setParent(self.head)
 		self.preSong.setGeometry(120,60,24,24)
-		img = QImage("src/pre.png")
+		img = QImage("src/pre11.png")
 		img = img.scaled(24,24,Qt.KeepAspectRatio)
 		self.preSong.setPixmap(QPixmap.fromImage(img))
 		#--------下一曲
 		self.nextSong = myLabel('nextsong',self.player) 
 		self.nextSong.setParent(self.head)
 		self.nextSong.setGeometry(225,60,24,24)
-		img = QImage("src/next.png")
+		img = QImage("src/next11.png")
 		img = img.scaled(24,24,Qt.KeepAspectRatio)
 		self.nextSong.setPixmap(QPixmap.fromImage(img))
 		#--------播放
 		self.play = myLabel('playsong',self.player) 
 		self.play.setParent(self.head)
 		self.play.setGeometry(160,48,50,50)
-		img = QImage("src/play.png")
+		img = QImage("src/play11.png")
 		img = img.scaled(48,48,Qt.KeepAspectRatio)
 		self.play.setPixmap(QPixmap.fromImage(img))
 	# ===========================回调函数===========================
@@ -151,7 +153,7 @@ class main(QWidget):
 			self.show()
 	#打开设置窗口
 	def setFunc(self):
-		self.move(150,30)
+		self.move(150,50)
 		self.popSetWg = popWindow (self.pos())
 		self.popSetWg.setStyleSheet("QLabel{color:blue}QPushButton{border:1px solid blue;color:blue}")
 		self.popSetWg.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
@@ -165,7 +167,7 @@ class main(QWidget):
 		self.popSetWg.show()
 	#打开mv窗口
 	def mvFunc(self):
-		self.move(150,30)
+		self.move(150,50)
 		self.popMvWg = popWindow (self.pos())
 		self.popMvWg.setStyleSheet("QWidget{background:#DCECFF}QLabel{background:none;color:white}QPushButton{border:1px solid blue;color:blue}QLineEdit{background:none}")
 		self.popMvWg.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)

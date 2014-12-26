@@ -78,6 +78,7 @@ class player():
 			self.mediaObject.setCurrentSource(Phonon.MediaSource(songUrl))
 			self.mediaObject.play()
 			self.songing = 0
+		self.window.songName.setText( os.path.basename(songUrl)[:-4] )
 		
 	# ===============================上一曲=====================================
 	def pre(self):
@@ -90,6 +91,7 @@ class player():
 		songUrl = self.songlist[self.songing]
 		self.mediaObject.setCurrentSource(Phonon.MediaSource(songUrl))
 		self.mediaObject.play()
+		self.window.songName.setText( os.path.basename(songUrl)[:-4] )
 		
 	#============================播放暂停=====================================
 	def pause(self):
@@ -98,7 +100,7 @@ class player():
 			
 		elif self.mediaObject.state() == Phonon.PausedState:
 			self.mediaObject.play() 
-		elif self.mediaObject.state() == Phonon.StoppedState:
+		else:
 			self.next()
 			
 # ============================回调函数============================================
@@ -106,7 +108,7 @@ class player():
 	def stateChange(self, newstate, oldstate):
 		if newstate == Phonon.PlayingState:  
 			#改变播放按钮状态
-			img = QImage("src/pause.png")
+			img = QImage("src/pause11.png")
 			img = img.scaled(48,48,Qt.KeepAspectRatio)
 			self.window.play.setPixmap(QPixmap.fromImage(img))
 			#把正在播放的歌曲标记未选择状态
@@ -114,7 +116,7 @@ class player():
 		elif newstate == Phonon.StoppedState:
 			pass
 		elif newstate == Phonon.PausedState:
-			img = QImage("src/play.png")
+			img = QImage("src/play11.png")
 			img = img.scaled(48,48,Qt.KeepAspectRatio)
 			self.window.play.setPixmap(QPixmap.fromImage(img))
 		elif newstate == Phonon.ErrorState:  
