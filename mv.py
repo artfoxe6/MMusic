@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 # import json
 from multiprocessing import Process
 # from threading import Timer
-# import time
+import time
 
 #=========================百度音乐下载类=======================================
 class BaiDuMV():
@@ -18,6 +18,14 @@ class BaiDuMV():
         sys.setdefaultencoding('utf8')   
 # ----------------------------------------抓取百度mv推荐页---------------------------------------
     def recommend(self):
+        try:
+            oldtime = open("icon/vars.data","r").read().split("|||")[-1:][0]
+            if ( time.time() - float(oldtime) ) < 3600*24:
+                return open("icon/vars.data","r").read()
+            # print oldtime
+        except Exception, e:
+            print e
+        
         url = "http://music.baidu.com/mv"
         userAgent = " User-Agent:Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36 "
         headers = { 'User-Agent' : userAgent }
@@ -47,6 +55,7 @@ class BaiDuMV():
             # print url[-6:]
             # Process(target=self.downPic, args=(img,"icon/"+url[-9:]+".jpg")).start()
         # print self.url_img_songer
+        open("icon/vars.data","w").write(self.url_img_songer+str(time.time()))
         return self.url_img_songer
 # ---------------------------------------用户搜索指定MV------------------------------
     def searchMV(self,songName):
@@ -80,3 +89,6 @@ if __name__=='__main__':
     # print mv.searchMV("我可以抱你吗")
 
 
+# 1419572356.4
+# 1419572389.21
+# 1419572397.7

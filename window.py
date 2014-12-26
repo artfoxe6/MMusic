@@ -23,7 +23,7 @@ class main(QWidget):
 		# ==========================头部=================================
 		self.head = headWidget(self)   #这里的self就是被移动的窗口
 		self.head.setParent (self)  #这里的self是所属父级
-		self.setStyleSheet("QWidget{background:#7FAEE4;border:1px solid #5FB9FA;border-top:none;border-bottom:none}QLabel{color:white;border:none}\
+		self.setStyleSheet("QWidget{background:#9B0069;border:1px solid #5FB9FA;border-top:none;border-bottom:none}QLabel{color:white;border:none}\
 			QSlider{width:300px;height:10px}\
 			QPushButton{border:none;color:white}QPushButton:hover{color:blue}\
 			QSlider::groove:horizontal { border: 1px solid #999999;height: 10px; margin: 0px 0;    }\
@@ -52,11 +52,11 @@ class main(QWidget):
 		# ------歌手头像
 		self.songerPic = QLabel(self.head)
 		self.songerPic.setGeometry(10,30,72,72)
-		img = QImage("src/songer.png")
+		img = QImage("src/tray.jpg")
 		img = img.scaled(70,120,Qt.KeepAspectRatio)
 		self.songerPic.setPixmap(QPixmap.fromImage(img))
 		# ------当前播放的歌名
-		self.songName = QLabel(u"我可以抱你吗-张惠妹",self.head)
+		self.songName = QLabel(u"",self.head)
 		self.songName.setAlignment(Qt.AlignHCenter)
 		self.songName.setGeometry(110,25,150,20)
 		# ===========================进度条==============================
@@ -82,7 +82,7 @@ class main(QWidget):
 		# =============================底部=============================
 		foot = QWidget(self)
 		foot.setGeometry(0, 560, 300,40)
-		foot.setStyleSheet("QWidget{color:white;background:#7FAEE4;border:1px solid #5FB9FA;border-top:none;border-bottom:none}\
+		foot.setStyleSheet("QWidget{color:white;background:#9B0069;border:1px solid #5FB9FA;border-top:none;border-bottom:none}\
 		QPushButton{border:none;color:white}QPushButton:hover{color:red}")
 		setBtn = QPushButton(u"设置",foot)
 		setBtn.setGeometry(0,0,60,40)
@@ -151,7 +151,7 @@ class main(QWidget):
 			self.show()
 	#打开设置窗口
 	def setFunc(self):
-		self.move(100,30)
+		self.move(150,30)
 		self.popSetWg = popWindow (self.pos())
 		self.popSetWg.setStyleSheet("QLabel{color:blue}QPushButton{border:1px solid blue;color:blue}")
 		self.popSetWg.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
@@ -165,22 +165,22 @@ class main(QWidget):
 		self.popSetWg.show()
 	#打开mv窗口
 	def mvFunc(self):
-		self.move(100,30)
+		self.move(150,30)
 		self.popMvWg = popWindow (self.pos())
-		self.popMvWg.setStyleSheet("QLabel{color:white}QPushButton{border:none}")
+		self.popMvWg.setStyleSheet("QWidget{background:#DCECFF}QLabel{background:none;color:white}QPushButton{border:1px solid blue;color:blue}QLineEdit{background:none}")
 		self.popMvWg.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
 		lab = QLabel(u" MV频道测试",self.popMvWg)
 		lab.setAlignment(Qt.AlignHCenter)
-		lab.setGeometry(10,10,100,25)
+		lab.setGeometry(500,10,100,25)
 		self.popMvWg.line = QLineEdit(self.popMvWg)
-		self.popMvWg.line.setGeometry(10,35,600,30)
+		self.popMvWg.line.setGeometry(10,45,500,30)
 		btn = QPushButton(u"搜索",self.popMvWg)
-		btn.setGeometry(630,35,100,30)
+		btn.setGeometry(530,45,100,30)
 		btn.clicked.connect(self.showMv)
 		
 		self.mvbox = QWidget(self.popMvWg)
-		self.mvbox.setGeometry(0,70,800,380)
-		self.mvbox.setStyleSheet("QWidget{background:#DCECFF}")
+		self.mvbox.setGeometry(0,80,700,480)
+		self.mvbox.setStyleSheet("QLabel{background:none;color:red}")
 		self.popMvWg.show()
 		# -----mv位置布局-----------
 		mvs = BaiDuMV()
@@ -188,29 +188,60 @@ class main(QWidget):
 		arr = recs.split("|||")
 		arr.pop()
 		listfile=os.listdir("icon")
-		print listfile
+		# print listfile
 		hbox1  = QHBoxLayout()
-		for img in range(5):
-			item = QLabel("") 
-			item.resize(140,140)
+		for v in range(4):
 			x = arr.pop()
+			item = QLabel("") 
+
+			item.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter )
+			item.resize(160,150)
+			song = QLabel(str(x.split("+++")[2]).decode('utf-8'),item)
+			song.setGeometry(0,120,160,20)
+			song.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter )
+			
 			img = QImage(x.split("+++")[1])
-			img = img.scaled(140,80,Qt.KeepAspectRatio)
+			img = img.scaled(160,90,Qt.KeepAspectRatio)
 			item.setPixmap(QPixmap.fromImage(img))
 			hbox1.addWidget(item)
+			# print item.text()
 		hbox2  = QHBoxLayout()
-		for img in range(5):
-			item = QLabel("") 
-			item.resize(140,140)
+		for v in range(4):
 			x = arr.pop()
+			item = QLabel() 
+
+			item.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter )
+			item.resize(160,150)
+			song = QLabel(str(x.split("+++")[2]).decode('utf-8'),item)
+			song.setGeometry(0,120,160,20)
+			song.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter )
+			
 			img = QImage(x.split("+++")[1])
-			img = img.scaled(140,80,Qt.KeepAspectRatio)
+			img = img.scaled(160,90,Qt.KeepAspectRatio)
 			item.setPixmap(QPixmap.fromImage(img))
 			hbox2.addWidget(item)
+		hbox3  = QHBoxLayout()
+		for v in range(2):
+			x = arr.pop()
+			item = QLabel() 
+
+			item.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter )
+			item.resize(160,150)
+			song = QLabel(str(x.split("+++")[2]).decode('utf-8'),item)
+			song.setGeometry(0,120,160,20)
+			song.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter )
+			
+			img = QImage(x.split("+++")[1])
+			img = img.scaled(160,90,Qt.KeepAspectRatio)
+			item.setPixmap(QPixmap.fromImage(img))
+			hbox3.addWidget(item)
+		hbox3.addWidget(QLabel(""))
+		hbox3.addWidget(QLabel(""))
 
 		vbox = QVBoxLayout()
 		vbox.addLayout(hbox2)
 		vbox.addLayout(hbox1)
+		vbox.addLayout(hbox3)
 		self.mvbox.setLayout(vbox)
 
 		

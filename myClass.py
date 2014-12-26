@@ -55,22 +55,22 @@ class popWindow(QWidget):
 	def __init__(self,posi):  #第二个参数未播放器位置
 		super(popWindow,self).__init__()
 		self.move(posi.x()+291,posi.y()-30)
-		self.resize(800,600)
+		self.resize(700,600)
 		self.setStyleSheet("QWidget{background:#DCECFF}QLineEdit{background:none}QLabel{background:none}QPushButton{background:none}")
 
 		head1 = headWidget(self)
 		head1.setParent (self)
-		head1.setGeometry(0,0,800,30)
-		QLabel(head1).resize(800,30) 
+		head1.setGeometry(0,0,700,30)
+		QLabel(head1).resize(700,30) 
 		head1.setStyleSheet("QWidget{background:#9B0069}QPushButton{border:none;color:white}QPushButton:hover{color:blue}")
 		closeBtn = QPushButton(u"关闭",head1) 
-		closeBtn.setGeometry(750,5,30,20)
+		closeBtn.setGeometry(650,5,30,20)
 		closeBtn.clicked.connect(self.quit)
 
 		head2 = headWidget(self)
 		head2.setParent (self)
-		head2.setGeometry(0,570,800,30)
-		QLabel(head2).resize(800,30) 
+		head2.setGeometry(0,560,700,40)
+		QLabel(head2).resize(700,40) 
 		head2.setStyleSheet("QWidget{background:#9B0069}QPushButton{border:none;color:white}QPushButton:hover{color:blue}")
 
 		self.show()
