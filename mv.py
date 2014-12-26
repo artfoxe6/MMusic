@@ -30,19 +30,24 @@ class BaiDuMV():
         except Exception, e:
             print u"抱歉没有找到相关资源".encode("utf-8")
             return
-        self.url_img = {}
+        self.url_img_songer = ""
         tmpjson = tmpjson[:10]  #提取正确的推荐mv
+        # print tmpjson
         for x in tmpjson:
             url = re.findall(r'<a href=(.*)target', str(x))[0]
             url = "http://music.baidu.com"+str(url[1:-2])
-            img = re.findall(r'<img alt=".*"\s+src=(.*)/>',str(x))[0]
+            img = re.findall(r'<img alt=".*"\s+src=(.*)>',str(x))[0]
             img = img[1:-1]
-            self.url_img[url] = img
+            songer = re.findall(r'<img alt="(.*)"\s+src=',str(x))[0]
+            # print str(songer[0]).encode("gbk")
+            imgpath = "icon/"+url[-9:]+".jpg"
+            self.url_img_songer+=url+"+++"+imgpath+"+++"+str(songer)+"|||"
+            # print url
             # ------------把图片保存到icon---------------
             # print url[-6:]
-            Process(target=self.downPic, args=(img,"icon/"+url[-6:]+".jpg")).start()
-        
-        return self.url_img
+            # Process(target=self.downPic, args=(img,"icon/"+url[-9:]+".jpg")).start()
+        # print self.url_img_songer
+        return self.url_img_songer
 # ---------------------------------------用户搜索指定MV------------------------------
     def searchMV(self,songName):
         url = "http://music.baidu.com/search?key="+urllib.quote(songName)

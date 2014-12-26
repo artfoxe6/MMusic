@@ -54,8 +54,8 @@ class myLabel(QLabel):
 class popWindow(QWidget):
 	def __init__(self,posi):  #第二个参数未播放器位置
 		super(popWindow,self).__init__()
-		self.move(posi.x()+50,posi.y()+50)
-		self.resize(800,500)
+		self.move(posi.x()+291,posi.y()-30)
+		self.resize(800,600)
 		self.setStyleSheet("QWidget{background:#DCECFF}QLineEdit{background:none}QLabel{background:none}QPushButton{background:none}")
 
 		head1 = headWidget(self)
@@ -69,7 +69,7 @@ class popWindow(QWidget):
 
 		head2 = headWidget(self)
 		head2.setParent (self)
-		head2.setGeometry(0,470,800,30)
+		head2.setGeometry(0,570,800,30)
 		QLabel(head2).resize(800,30) 
 		head2.setStyleSheet("QWidget{background:#9B0069}QPushButton{border:none;color:white}QPushButton:hover{color:blue}")
 

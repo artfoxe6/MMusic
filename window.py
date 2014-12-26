@@ -151,7 +151,9 @@ class main(QWidget):
 			self.show()
 	#打开设置窗口
 	def setFunc(self):
+		self.move(100,30)
 		self.popSetWg = popWindow (self.pos())
+		self.popSetWg.setStyleSheet("QLabel{color:blue}QPushButton{border:1px solid blue;color:blue}")
 		self.popSetWg.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
 		lab = QLabel(u"默认歌曲路径",self.popSetWg)
 		lab.setGeometry(10,40,200,25)
@@ -163,10 +165,13 @@ class main(QWidget):
 		self.popSetWg.show()
 	#打开mv窗口
 	def mvFunc(self):
+		self.move(100,30)
 		self.popMvWg = popWindow (self.pos())
+		self.popMvWg.setStyleSheet("QLabel{color:white}QPushButton{border:none}")
 		self.popMvWg.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
-		lab = QLabel(u"MV测试",self.popMvWg)
-		lab.setGeometry(10,0,200,25)
+		lab = QLabel(u" MV频道测试",self.popMvWg)
+		lab.setAlignment(Qt.AlignHCenter)
+		lab.setGeometry(10,10,100,25)
 		self.popMvWg.line = QLineEdit(self.popMvWg)
 		self.popMvWg.line.setGeometry(10,35,600,30)
 		btn = QPushButton(u"搜索",self.popMvWg)
@@ -178,18 +183,35 @@ class main(QWidget):
 		self.mvbox.setStyleSheet("QWidget{background:#DCECFF}")
 		self.popMvWg.show()
 		# -----mv位置布局-----------
-		# mvs = BaiDuMV()
-		# recs = mvs.recommend()
-		# listfile=os.listdir("icon")
-		# print listfile
-		# grid = QGridLayout()
-		# for index ,value in enumerate (recs): 
-		# 	item = QLabel(index,self.player) 
+		mvs = BaiDuMV()
+		recs = mvs.recommend()
+		arr = recs.split("|||")
+		arr.pop()
+		listfile=os.listdir("icon")
+		print listfile
+		hbox1  = QHBoxLayout()
+		for img in range(5):
+			item = QLabel("") 
+			item.resize(140,140)
+			x = arr.pop()
+			img = QImage(x.split("+++")[1])
+			img = img.scaled(140,80,Qt.KeepAspectRatio)
+			item.setPixmap(QPixmap.fromImage(img))
+			hbox1.addWidget(item)
+		hbox2  = QHBoxLayout()
+		for img in range(5):
+			item = QLabel("") 
+			item.resize(140,140)
+			x = arr.pop()
+			img = QImage(x.split("+++")[1])
+			img = img.scaled(140,80,Qt.KeepAspectRatio)
+			item.setPixmap(QPixmap.fromImage(img))
+			hbox2.addWidget(item)
 
-		# 	img = QImage("src/play.png")
-		# 	img = img.scaled(48,48,Qt.KeepAspectRatio)
-		# 	item.setPixmap(QPixmap.fromImage(img))
-		# 	grid.addWidget(QLabel(''), 0, 2)
+		vbox = QVBoxLayout()
+		vbox.addLayout(hbox2)
+		vbox.addLayout(hbox1)
+		self.mvbox.setLayout(vbox)
 
 		
 	#加载MV
