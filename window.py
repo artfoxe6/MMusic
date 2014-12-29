@@ -1,15 +1,17 @@
 #!/user/bin/env python
 #coding=utf-8
 """
-播放器框架，只负责外观，不涉及逻辑
+播放器框架，只负责外观，（基本）不涉及逻辑
 """
-
+from __future__ import unicode_literals   #防止乱码
 import sys,os
+from multiprocessing import Process, Queue
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from myClass import *
 from phonon import *
 from mv import *
+from search import *
 
 class main(QWidget):
 	def __init__(self):
@@ -89,21 +91,31 @@ class main(QWidget):
 		setBtn = QPushButton(u"设置",foot)
 		setBtn.setGeometry(0,0,60,40)
 		setBtn.clicked.connect(self.setFunc)
+
 		mvBtn = QPushButton(u"MV",foot)
 		mvBtn.setGeometry(60,0,60,40)
 		mvBtn.clicked.connect(self.mvFunc)
 
 		QPushButton(u"热榜",foot).setGeometry(120,0,60,40)
 		QPushButton(u"新歌",foot).setGeometry(180,0,60,40)
-		QPushButton(u"搜歌",foot).setGeometry(240,0,60,40)
+
+		searchBtn = QPushButton(u"搜歌",foot)
+		searchBtn.setGeometry(240,0,60,40)
+		searchBtn.clicked.connect(self.searchSong)
 		# ==========================托盘==================================
 		tray = QSystemTrayIcon(self)
 		icon = QIcon('src/tray.png')
 		tray.setIcon(icon)
 		trayIconMenu = QMenu(self)
+		preAction = QAction(u"上一曲 ", self,triggered=self.preit)
+		pauseAction = QAction(u"暂停|播放 ", self,triggered=self.pauseit)
+		nextAction = QAction(u"下一曲 ", self,triggered=self.nextit)
 		quitAction = QAction(u"退出 ", self,triggered=self.quitit)
 		showAction = QAction(icon,u"显示主面板", self,triggered=self.showit)
 		trayIconMenu.addAction(showAction)
+		trayIconMenu.addAction(preAction)
+		trayIconMenu.addAction(pauseAction)
+		trayIconMenu.addAction(nextAction)
 		trayIconMenu.addAction(quitAction)
 		tray.setContextMenu(trayIconMenu)
 		tray.show()
@@ -140,6 +152,12 @@ class main(QWidget):
 		self.hide()
 	def playit(self,item):
 		self.player.playit(item.text())
+	def nextit(self):
+		self.player.next()
+	def preit(self):
+		self.player.pre()
+	def pauseit(self):
+		self.player.pause()
 	def selectDir(self):
 		path = QFileDialog.getExistingDirectory(self.popSetWg)
 		self.popSetWg.line.setText(path)
@@ -245,12 +263,104 @@ class main(QWidget):
 		vbox.addLayout(hbox1)
 		vbox.addLayout(hbox3)
 		self.mvbox.setLayout(vbox)
-
+	# 歌曲搜索
+	def searchSong(self):
+		self.move(150,50)
+		self.popSearch = popWindow (self.pos())
+		self.popSearch.setStyleSheet("QWidget{background:#DCECFF}QLabel{background:none;color:white}QPushButton{border:1px solid blue;color:blue}QLineEdit{background:none}")
+		self.popSearch.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+		lab = QLabel(u" 在线音乐",self.popSearch)
+		lab.setAlignment(Qt.AlignHCenter)
+		lab.setGeometry(500,10,100,25)
+		self.popSearch.line = QLineEdit(self.popSearch)
+		self.popSearch.line.setGeometry(10,45,500,30)
+		# self.popSearch.line.setText("冰 雨".decode('utf-8'))
+		btn = QPushButton(u"搜索",self.popSearch)
+		btn.setGeometry(530,45,100,30)
+		btn.clicked.connect(self.search)
+		# 结果列表----------------------------------------------------------------------------------------
+		self.popSearch.myTable = QTableWidget(20,5,self.popSearch)
+		self.popSearch.myTable.setStyleSheet("QPushButton{color:#9B0069;border:none}QScrollBar{width:0;height:0}")
+		self.popSearch.myTable.setGeometry(0,90,700,450)
+		# self.popSearch.myTable.horizontalHeader().setStyleSheet("QHeaderView::section{background:pink;}")   #表头颜色
+		# self.popSearch.myTable.horizontalHeader().setClickable(False)   #表头不可点击 (默认点击排序)
+		self.popSearch.myTable.setFrameShape(QFrame.NoFrame)
+		# self.popSearch.myTable.setShowGrid(False)   #隐藏格子线
+		self.popSearch.myTable.setHorizontalHeaderLabels([u"歌名",u"歌手",u'操作',u"下载进度",u"下载链接"])
+		self.popSearch.myTable.setColumnHidden(4,True)
+		self.popSearch.myTable.horizontalHeader().setStretchLastSection(True)
+		self.popSearch.myTable.verticalHeader().setDefaultSectionSize(25)
+		self.popSearch.myTable.verticalHeader().setVisible(False)
+		self.popSearch.myTable.setEditTriggers(QAbstractItemView.NoEditTriggers)
+		self.popSearch.myTable.horizontalHeader().resizeSection(0,250)
+		self.popSearch.myTable.horizontalHeader().resizeSection(1,150)
+		self.popSearch.myTable.horizontalHeader().resizeSection(2,50)
+		self.popSearch.myTable.cellClicked.connect(self.downit) 
+		self.popSearch.show()
 		
 	#加载MV
 	def showMv(self):
 		pass
+	def search(self):
+		self.popSearch.myTable.clear()
+		self.popSearch.myTable.setHorizontalHeaderLabels([u"歌名",u"歌手",u'操作',u"下载进度",u"下载链接"])
+		song = unicode(self.popSearch.line.text())
+		# print type(song)
+		bMusic = BaiDuMusic()
+		res_arr = bMusic.search(song)
+		# # print res_arr
+		for index ,x in enumerate (res_arr): 
+			# -----歌名
+			print x.split("+++")[2].decode("utf-8")
+			item1 = QTableWidgetItem(x.split("+++")[2].decode("utf-8"))
+			# item1.setBackgroundColor(QColor("blue"))
+			item1.setTextColor(QColor(155,0,105))
+			self.popSearch.myTable.setItem(index,0,item1)
+			# -----歌手
+			item2 = QTableWidgetItem(x.split("+++")[1].decode('utf-8'))
+			# item2.setBackgroundColor(QColor("blue"))
+			item2.setTextColor(QColor(155,0,105))
+			self.popSearch.myTable.setItem(index,1,item2)
+			# -----下载
+			item3 = QTableWidgetItem(u"下载")
+			item3.setTextColor(QColor(155,0,105))
+			self.popSearch.myTable.setItem(index,2,item3)
+			# -----进度条
+			progressBar = QProgressBar()
+			
+			progressBar.setMaximum(100)
+			# progressBar.setValue(20)
+			progressBar.setStyleSheet('''QProgressBar {background:red;height:10px;width:10px} 
+			                             QProgressBar::chunk {background:blue}''')
+			self.popSearch.myTable.setCellWidget(index,3,progressBar)
+
+			item4 = QTableWidgetItem(x.split("+++")[0].decode('utf-8'))
+			# item2.setBackgroundColor(QColor("blue"))
+			item4.setTextColor(QColor(155,0,105))
+			self.popSearch.myTable.setItem(index,4,item4)
+	def downit(self,x,y):
+		self.index = x
+		songid = self.popSearch.myTable.item(x,4).text()
+		songname = self.popSearch.myTable.item(x,0).text()
+		# t = threading.Thread().start()
+		# Process().start()	
+		self.download(songid,str(songname))
+		# Process(target=self.download, args=(),self.per).start()
 	# ========================================================
+	#歌曲下载
+	def download(self,songid,songName,savePath="down/"):
+		# self.pids.put(os.getpid())
+		songNewUrl = "http://music.baidu.com/data/music/file?link=&song_id="+str(songid)
+		if not os.path.isdir(savePath):	
+			os.makedirs(savePath)
+		savemp3 = savePath.decode('utf-8')+songName.decode('utf-8')+u".mp3"
+		urllib.urlretrieve(songNewUrl, savemp3,self.cbk) 
+	#下载进度显示
+	def cbk(self,a, b, c):  
+		per = 100.0 * a * b / c
+		if per > 100:
+			per = 100
+		self.popSearch.myTable.cellWidget(int(self.index), 3).setValue(per)
 
 
 
