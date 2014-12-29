@@ -12,10 +12,14 @@ from myClass import *
 from phonon import *
 from mv import *
 from search import *
+import ctypes
+#告诉windows我这个程序是单独的  不是python  否则设置任务栏图标无效
+ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("myappid")
 
 class main(QWidget):
 	def __init__(self):
 		super(main,self).__init__()
+		#隐藏边框
 		self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
 		self.setGeometry(300, 30, 300,600)
 		self.addLayout()
@@ -87,8 +91,9 @@ class main(QWidget):
 		foot = QWidget(self)
 		foot.setGeometry(0, 560, 300,40)
 		foot.setStyleSheet("QWidget{color:white;background:#9B0069;border:1px solid #5FB9FA;border-top:none;border-bottom:none}\
-		QPushButton{border:none;color:white}QPushButton:hover{color:red}")
+		QPushButton{border:none;color:white}QPushButton:hover{color:red}QPushButton#setBtnIcon{border-image:url(play.png)}")
 		setBtn = QPushButton(u"设置",foot)
+		# setBtn.setObjectName("setBtnIcon")
 		setBtn.setGeometry(0,0,60,40)
 		setBtn.clicked.connect(self.setFunc)
 
@@ -367,5 +372,7 @@ class main(QWidget):
 if __name__ == "__main__":
 	app = QApplication(sys.argv)
 	demo = main()
+	demo.setWindowIcon(QIcon("src/tray.png"))
 	demo.show()
 	sys.exit(app.exec_())
+
