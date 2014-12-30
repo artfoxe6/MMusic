@@ -5,7 +5,7 @@
 """
 from __future__ import unicode_literals   #防止乱码
 import sys,os
-from multiprocessing import Process, Queue
+from multiprocessing import Process, Queue , Manager
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from myClass import *
@@ -339,28 +339,35 @@ class main(QWidget):
 			item4.setTextColor(QColor(155,0,105))
 			self.popSearch.myTable.setItem(index,4,item4)
 	def downit(self,x,y):
-		self.index = x
+		if y!=2:
+			return
 		songid = self.popSearch.myTable.item(x,4).text()
 		songname = self.popSearch.myTable.item(x,0).text()
-		# t = threading.Thread().start()
-		# Process().start()	
-		self.download(songid,str(songname))
+		self.mgr = Manager()
+		d = self.mgr.dict()
+		d[1] = x
+		d[0] = 0
+		bMusic = BaiDuMusic()
+		Process(target=bMusic.download, args=(str(songid),str(songname),d)).start()
+		while int(d[0]) <=100:
+				self.popSearch.myTable.cellWidget(int(d[1]), 3).setValue(d[0])	
+		# self.download(songid,str(songname))
 		# Process(target=self.download, args=(),self.per).start()
 	# ========================================================
-	#歌曲下载
-	def download(self,songid,songName,savePath="down/"):
-		# self.pids.put(os.getpid())
-		songNewUrl = "http://music.baidu.com/data/music/file?link=&song_id="+str(songid)
-		if not os.path.isdir(savePath):	
-			os.makedirs(savePath)
-		savemp3 = savePath.decode('utf-8')+songName.decode('utf-8')+u".mp3"
-		urllib.urlretrieve(songNewUrl, savemp3,self.cbk) 
-	#下载进度显示
-	def cbk(self,a, b, c):  
-		per = 100.0 * a * b / c
-		if per > 100:
-			per = 100
-		self.popSearch.myTable.cellWidget(int(self.index), 3).setValue(per)
+	# #歌曲下载
+	# def download(self,songid,songName,savePath="down/"):
+	# 	# self.pids.put(os.getpid())
+	# 	songNewUrl = "http://music.baidu.com/data/music/file?link=&song_id="+str(songid)
+	# 	if not os.path.isdir(savePath):	
+	# 		os.makedirs(savePath)
+	# 	savemp3 = savePath.decode('utf-8')+songName.decode('utf-8')+u".mp3"
+	# 	urllib.urlretrieve(songNewUrl, savemp3,self.cbk) 
+	# #下载进度显示
+	# def cbk(self,a, b, c):  
+	# 	per = 100.0 * a * b / c
+	# 	if per > 100:
+	# 		per = 100
+	# 	self.popSearch.myTable.cellWidget(int(self.index), 3).setValue(per)
 
 
 

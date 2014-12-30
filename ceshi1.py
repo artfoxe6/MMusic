@@ -1,32 +1,21 @@
-#coding=utf-8
-from multiprocessing import Process, Queue
-import os, time, random
+import multiprocessing
+import time
 
-# 写数据进程执行的代码:
-def write(q):
-    for value in ['A', 'B', 'C']:
-        print 'Put %s to queue...' % value
-        q.put(value)
-        time.sleep(2)
+def worker(d, key, value):
+    # print key,value
+    d[key] = value
 
-# 读数据进程执行的代码:
-def read(q):
-    while True:
-        value = q.get(0)
-        print 'Get %s from queue.' % value
-        value = q.get(0)
-        print 'Get %s from queue.' % value
-
-if __name__=='__main__':
-    # 父进程创建Queue，并传给各个子进程：
-    q = Queue()
-    pw = Process(target=write, args=(q,))
-    pr = Process(target=read, args=(q,))
-    # 启动子进程pw，写入:
-    pw.start()
-    # 启动子进程pr，读取:
-    pr.start()
-    # 等待pw结束:
-    pw.join()
-    # pr进程里是死循环，无法等待其结束，只能强行终止:
-    pr.terminate()
+if __name__ == '__main__':
+    mgr = multiprocessing.Manager()
+    d = mgr.dict()
+    jobs = [ multiprocessing.Process(target=worker, args=(d, i, i*2))
+             for i in range(10) 
+             ]
+    # print jobs
+    for j in jobs:
+        j.start()
+    for j in jobs:
+        j.join()
+    print ('Results:' )
+    for key , value in dict(d).items():
+       print key , value

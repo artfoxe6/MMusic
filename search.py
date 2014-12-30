@@ -19,10 +19,14 @@ class BaiDuMusic():
         sys.setdefaultencoding('utf8')   
     #下载进度
     def cbk(self,a, b, c):  
-        per = 100.0 * a * b / c
-        if per > 100:
-        	per = 100
-        self.obj.setValue(per)
+        try:
+            per = 100.0 * a * b / c
+            if per > 100:
+                per = 100
+                self.d[0] = per
+        except Exception, e:
+            self.d[0] = 100
+       
 
     def search(self,songName):
         firstUrl = "http://music.baidu.com/search?key="+urllib.quote(str(songName))
@@ -47,8 +51,8 @@ class BaiDuMusic():
         except Exception, e:
             print u"抱歉没有找到相关资源".encode("utf-8")
             return 0
-    def download(self,songid,songName,obj,savePath="down/"):
-        self.obj = obj
+    def download(self,songid,songName,d,savePath="down/"):
+        self.d = d
         songNewUrl = "http://music.baidu.com/data/music/file?link=&song_id="+str(songid)
         if not os.path.isdir(savePath):	
         	os.makedirs(savePath)
