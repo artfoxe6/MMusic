@@ -23,9 +23,9 @@ class BaiDuMusic():
             per = 100.0 * a * b / c
             if per > 100:
                 per = 100
-                self.d[0] = per
+            self.obj.setValue(per)
         except Exception, e:
-            self.d[0] = 100
+            self.obj.setValue(100)
        
 
     def search(self,songName):
@@ -51,9 +51,11 @@ class BaiDuMusic():
         except Exception, e:
             print u"抱歉没有找到相关资源".encode("utf-8")
             return 0
-    def download(self,songid,songName,d,savePath="down/"):
-        self.d = d
+    def download(self,songid,songName,obj,savePath="down/"):
+        # songpath = open("local.py","r").read().split("+++")[0]
+        self.obj = obj
         songNewUrl = "http://music.baidu.com/data/music/file?link=&song_id="+str(songid)
+        print songNewUrl
         if not os.path.isdir(savePath): 
             os.makedirs(savePath)
         savemp3 = savePath.decode('utf-8')+songName.decode('utf-8')+u".mp3"

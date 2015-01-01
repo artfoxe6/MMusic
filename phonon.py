@@ -8,6 +8,9 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from PyQt4.phonon import Phonon
 import os,sys
+from threading import Timer
+from mutagen import File
+import time
 
 class player():
 	# =========================初始化播放组件=============================================
@@ -61,7 +64,14 @@ class player():
 		# print u""+songUrl+""
 		self.mediaObject.setCurrentSource(Phonon.MediaSource(songUrl))
 		self.mediaObject.play()  
-		self.window.songName.setText( os.path.basename(songUrl)[:-4] )
+
+		# print files.tags['APIC:e'].data
+		# print dir(files.tags)
+		# self.window.songName.setText( os.path.basename(songUrl)[:-4] )
+		
+	# def delayrun(self,strs):
+		# print u'延迟执行'
+		# print strs
 		
 	# ==============================下一曲====================================
 	def next(self):
@@ -78,7 +88,7 @@ class player():
 			self.mediaObject.setCurrentSource(Phonon.MediaSource(songUrl))
 			self.mediaObject.play()
 			self.songing = 0
-		self.window.songName.setText( os.path.basename(songUrl)[:-4] )
+		# self.window.songName.setText( os.path.basename(songUrl)[:-4] )
 		
 	# ===============================上一曲=====================================
 	def pre(self):
@@ -91,7 +101,7 @@ class player():
 		songUrl = self.songlist[self.songing]
 		self.mediaObject.setCurrentSource(Phonon.MediaSource(songUrl))
 		self.mediaObject.play()
-		self.window.songName.setText( os.path.basename(songUrl)[:-4] )
+		# self.window.songName.setText( os.path.basename(songUrl)[:-4] )
 		
 	#============================播放暂停=====================================
 	def pause(self):
@@ -106,13 +116,51 @@ class player():
 # ============================回调函数============================================
 	# ------------播放状态发生改变-----------------------
 	def stateChange(self, newstate, oldstate):
+
 		if newstate == Phonon.PlayingState:  
+			#解析mp3 meta信息
+			metDict = self.mediaObject.metaData()
+			try:
+				songName = metDict[QString(u'TITLE')][0]
+			except Exception, e:
+				songName = self.mediaObject.currentSource().fileName() 
+				songName = os.path.basename(str(songName))[:-4]
+				songName = unicode(songName)
+			#刷新当前歌曲的歌名
+			self.window.songName.setText(songName)
+			#解析mp3文件得到歌曲专辑图片
+			files = File(str(self.mediaObject.currentSource().fileName()) )
+			# print files.tags
+			fc = open("src/temp.jpg","w")
+			try:
+				jpg = files.tags['APIC:e'].data
+				fc.write(jpg)
+				fc.close()
+			except Exception, e:
+				pass
+			# Timer(2,self.tupian).start() 
+			
+				
 			#改变播放按钮状态
 			img = QImage("src/pause11.png")
 			img = img.scaled(48,48,Qt.KeepAspectRatio)
 			self.window.play.setPixmap(QPixmap.fromImage(img))
 			#把正在播放的歌曲标记未选择状态
 			self.window.songList.setCurrentItem(self.window.songList.item(self.songing))
+			#刷新专辑图片
+			# time.sleep(3)
+			# try:
+			if os.path.getsize("src/temp.jpg") <10:
+				img = QImage("src/tray.jpg").scaled(70,120,Qt.KeepAspectRatio)
+			else:
+				img = QImage("src/temp.jpg").scaled(70,120,Qt.KeepAspectRatio)
+			# img = QImage("src/temp.jpg").scaled(70,120,Qt.KeepAspectRatio) or QImage("src/tray.jpg").scaled(70,120,Qt.KeepAspectRatio)
+				# img = img.scaled(70,120,Qt.KeepAspectRatio)
+			# except Exception,e:
+				# img = QImage("src/tray.jpg")
+				# img = img.scaled(70,120,Qt.KeepAspectRatio)
+				# print e
+			self.window.songerPic.setPixmap(QPixmap.fromImage(img))
 		elif newstate == Phonon.StoppedState:
 			pass
 		elif newstate == Phonon.PausedState:

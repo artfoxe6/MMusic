@@ -67,6 +67,10 @@ class popWindow(QWidget):
 		closeBtn.setGeometry(650,5,30,20)
 		closeBtn.clicked.connect(self.quit)
 
+		smBtn = QPushButton(u"最小化",head1) 
+		smBtn.setGeometry(580,5,50,20)
+		smBtn.clicked.connect(self.smit)
+
 		head2 = headWidget(self)
 		head2.setParent (self)
 		head2.setGeometry(0,560,700,40)
@@ -76,5 +80,7 @@ class popWindow(QWidget):
 		self.show()
 	def quit(self):
 		self.close()
+	def smit(self):
+		self.showMinimized()
 
 # ========================================

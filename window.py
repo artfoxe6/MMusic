@@ -6,6 +6,7 @@
 from __future__ import unicode_literals   #防止乱码
 import sys,os
 from multiprocessing import Process, Queue , Manager
+import threading
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from myClass import *
@@ -20,7 +21,7 @@ class main(QWidget):
 	def __init__(self):
 		super(main,self).__init__()
 		#隐藏边框
-		self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+		self.setWindowFlags(Qt.FramelessWindowHint)
 		self.setGeometry(300, 30, 300,600)
 		self.addLayout()
 		self.player = player(self)
@@ -29,8 +30,8 @@ class main(QWidget):
 		# ==========================头部=================================
 		self.head = headWidget(self)   #这里的self就是被移动的窗口
 		self.head.setParent (self)  #这里的self是所属父级
-		self.setStyleSheet("QWidget{background:#9B0069;border:1px solid #5FB9FA;border-top:none;border-bottom:none}QLabel{color:white;border:none}\
-			QSlider{width:300px;height:10px}\
+		self.setStyleSheet("QWidget{background:#9B0069;font:Serif;border:1px solid #9B0069;border-top:none;border-bottom:none}QLabel{color:white;border:none}\
+			QSlider{width:298px;height:10px}\
 			QPushButton{border:none;color:white}QPushButton:hover{color:blue}\
 			QSlider::groove:horizontal { border: 1px solid #999999;height: 10px; margin: 0px 0;    }\
 	            QSlider::handle:horizontal  { border: 1px solid #5c5c5c;border-image:url(src/ico.png);width: 18px;margin: -7px -7px -7px -7px; }\
@@ -70,12 +71,12 @@ class main(QWidget):
 		# ===========================进度条==============================
 		self.proWgt = QWidget(self)
 		self.proWgt.setGeometry(0, 110, 300,10)
-		self.proWgt.setStyleSheet("QWidget{background-color:#C9C9C9;border:1px solid #5FB9FA;border-top:none;border-bottom:none}\
+		self.proWgt.setStyleSheet("QWidget{background-color:#C9C9C9;border:1px solid #9B0069;border-top:none;border-bottom:none}\
 		    SeekSlider{width:300}")
 		# ===========================歌曲列表==============================
 		listWgt = QWidget(self)
 		listWgt.setGeometry(0, 120, 300,430)
-		listWgt.setStyleSheet("QWidget{color:white;background:white;border:1px solid #5FB9FA;border-top:none;border-bottom:none}")
+		listWgt.setStyleSheet("QWidget{color:white;background:white;border:1px solid #9B0069;border-top:none;border-bottom:none}")
 		self.songList = QListWidget(listWgt)
 		self.songList.resize(260,430)   
 		self.songList.setStyleSheet("QListWidget{color:gray;font-size:12px;background:#FAFAFD;}\
@@ -85,27 +86,38 @@ class main(QWidget):
 		# ================================音量========================
 		self.vluWgt = QWidget(self)
 		self.vluWgt.setGeometry(0, 550, 300,10)
-		self.vluWgt.setStyleSheet("QWidget{background-color:#C9C9C9;border:1px solid #5FB9FA;border-top:none;border-bottom:none}\
+		self.vluWgt.setStyleSheet("QWidget{background-color:#C9C9C9;border:1px solid #9B0069;border-top:none;border-bottom:none}\
 		    SeekSlider{width:300}")
 		# =============================底部=============================
 		foot = QWidget(self)
 		foot.setGeometry(0, 560, 300,40)
-		foot.setStyleSheet("QWidget{color:white;background:#9B0069;border:1px solid #5FB9FA;border-top:none;border-bottom:none}\
-		QPushButton{border:none;color:white}QPushButton:hover{color:red}QPushButton#setBtnIcon{border-image:url(play.png)}")
-		setBtn = QPushButton(u"设置",foot)
-		# setBtn.setObjectName("setBtnIcon")
+		foot.setStyleSheet("""QWidget{color:white;background:#9B0069;border:1px solid #9B0069;border-top:none;border-bottom:none}
+		QPushButton{border:none;color:white}QPushButton:hover{color:red}QPushButton#setBtnIcon{border-image:url(play.png)}
+		QPushButton#setBtnIcon{background-image:url(src/001.png);background-repeat:no-repeat;background-position:center}
+		QPushButton#mvBtn{background-image:url(src/002.png);background-repeat:no-repeat;background-position:center}
+		QPushButton#hotBtn{background-image:url(src/003.png);background-repeat:no-repeat;background-position:center}
+		QPushButton#newBtn{background-image:url(src/004.png);background-repeat:no-repeat;background-position:center}
+		QPushButton#seaBtn{background-image:url(src/005.png);background-repeat:no-repeat;background-position:center}
+		""")
+		setBtn = QPushButton(u"",foot)
+		setBtn.setObjectName("setBtnIcon")
 		setBtn.setGeometry(0,0,60,40)
 		setBtn.clicked.connect(self.setFunc)
 
-		mvBtn = QPushButton(u"MV",foot)
+		mvBtn = QPushButton(u"",foot)
+		mvBtn.setObjectName("mvBtn")
 		mvBtn.setGeometry(60,0,60,40)
-		mvBtn.clicked.connect(self.mvFunc)
+		# mvBtn.clicked.connect(self.mvFunc)
 
-		QPushButton(u"热榜",foot).setGeometry(120,0,60,40)
-		QPushButton(u"新歌",foot).setGeometry(180,0,60,40)
-
-		searchBtn = QPushButton(u"搜歌",foot)
+		hotBtn = QPushButton(u"",foot)
+		hotBtn.setGeometry(120,0,60,40)
+		hotBtn.setObjectName("hotBtn")
+		newBtn = QPushButton(u"",foot)
+		newBtn.setGeometry(180,0,60,40)
+		newBtn.setObjectName("newBtn")
+		searchBtn = QPushButton(u"",foot)
 		searchBtn.setGeometry(240,0,60,40)
+		searchBtn.setObjectName("seaBtn")
 		searchBtn.clicked.connect(self.searchSong)
 		# ==========================托盘==================================
 		tray = QSystemTrayIcon(self)
@@ -188,95 +200,16 @@ class main(QWidget):
 		btn.setGeometry(410,65,100,30)
 		btn.clicked.connect(self.selectDir)
 		self.popSetWg.show()
-	#打开mv窗口
-	def mvFunc(self):
-		self.move(150,50)
-		self.popMvWg = popWindow (self.pos())
-		self.popMvWg.setStyleSheet("QWidget{background:#DCECFF}QLabel{background:none;color:white}QPushButton{border:1px solid blue;color:blue}QLineEdit{background:none}")
-		self.popMvWg.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
-		lab = QLabel(u" MV频道测试",self.popMvWg)
-		lab.setAlignment(Qt.AlignHCenter)
-		lab.setGeometry(500,10,100,25)
-		self.popMvWg.line = QLineEdit(self.popMvWg)
-		self.popMvWg.line.setGeometry(10,45,500,30)
-		btn = QPushButton(u"搜索",self.popMvWg)
-		btn.setGeometry(530,45,100,30)
-		btn.clicked.connect(self.showMv)
-		
-		self.mvbox = QWidget(self.popMvWg)
-		self.mvbox.setGeometry(0,80,700,480)
-		self.mvbox.setStyleSheet("QLabel{background:none;color:red}")
-		self.popMvWg.show()
-		# -----mv位置布局-----------
-		mvs = BaiDuMV()
-		recs = mvs.recommend()
-		arr = recs.split("|||")
-		arr.pop()
-		listfile=os.listdir("icon")
-		# print listfile
-		hbox1  = QHBoxLayout()
-		for v in range(4):
-			x = arr.pop()
-			item = QLabel("") 
 
-			item.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter )
-			item.resize(160,150)
-			song = QLabel(str(x.split("+++")[2]).decode('utf-8'),item)
-			song.setGeometry(0,120,160,20)
-			song.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter )
-			
-			img = QImage(x.split("+++")[1])
-			img = img.scaled(160,90,Qt.KeepAspectRatio)
-			item.setPixmap(QPixmap.fromImage(img))
-			hbox1.addWidget(item)
-			# print item.text()
-		hbox2  = QHBoxLayout()
-		for v in range(4):
-			x = arr.pop()
-			item = QLabel() 
-
-			item.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter )
-			item.resize(160,150)
-			song = QLabel(str(x.split("+++")[2]).decode('utf-8'),item)
-			song.setGeometry(0,120,160,20)
-			song.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter )
-			
-			img = QImage(x.split("+++")[1])
-			img = img.scaled(160,90,Qt.KeepAspectRatio)
-			item.setPixmap(QPixmap.fromImage(img))
-			hbox2.addWidget(item)
-		hbox3  = QHBoxLayout()
-		for v in range(2):
-			x = arr.pop()
-			item = QLabel() 
-
-			item.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter )
-			item.resize(160,150)
-			song = QLabel(str(x.split("+++")[2]).decode('utf-8'),item)
-			song.setGeometry(0,120,160,20)
-			song.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter )
-			
-			img = QImage(x.split("+++")[1])
-			img = img.scaled(160,90,Qt.KeepAspectRatio)
-			item.setPixmap(QPixmap.fromImage(img))
-			hbox3.addWidget(item)
-		hbox3.addWidget(QLabel(""))
-		hbox3.addWidget(QLabel(""))
-
-		vbox = QVBoxLayout()
-		vbox.addLayout(hbox2)
-		vbox.addLayout(hbox1)
-		vbox.addLayout(hbox3)
-		self.mvbox.setLayout(vbox)
 	# 歌曲搜索
 	def searchSong(self):
 		self.move(150,50)
 		self.popSearch = popWindow (self.pos())
-		self.popSearch.setStyleSheet("QWidget{background:#DCECFF}QLabel{background:none;color:white}QPushButton{border:1px solid blue;color:blue}QLineEdit{background:none}")
+		self.popSearch.setStyleSheet("QWidget{background:#DCECFF}QLabel{background:none;color:white}QLineEdit{background:none}")
 		self.popSearch.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
 		lab = QLabel(u" 在线音乐",self.popSearch)
 		lab.setAlignment(Qt.AlignHCenter)
-		lab.setGeometry(500,10,100,25)
+		lab.setGeometry(400,5,100,25)
 		self.popSearch.line = QLineEdit(self.popSearch)
 		self.popSearch.line.setGeometry(10,45,500,30)
 		# self.popSearch.line.setText("冰 雨".decode('utf-8'))
@@ -350,12 +283,14 @@ class main(QWidget):
 		songname = self.popSearch.myTable.item(x,0).text()
 		self.mgr = Manager()
 		d = self.mgr.dict()
-		d[1] = x
-		d[0] = 0
 		bMusic = BaiDuMusic()
-		Process(target=bMusic.download, args=(str(songid),str(songname),d)).start()
-		while int(d[0]) <=100:
-				self.popSearch.myTable.cellWidget(int(d[1]), 3).setValue(d[0])	
+		obj = self.popSearch.myTable.cellWidget(x, 3)
+		t = threading.Thread(target=bMusic.download, args=(str(songid),str(songname),obj))
+		t.start()
+		t.join()
+		# Process(target=bMusic.download, args=(str(songid),str(songname),d)).start()
+		# while int(d[0]) <=100:
+				# self.popSearch.myTable.cellWidget(int(d[1]), 3).setValue(d[0])	
 		# self.download(songid,str(songname))
 		# Process(target=self.download, args=(),self.per).start()
 	# ========================================================
