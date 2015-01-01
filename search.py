@@ -17,7 +17,7 @@ class BaiDuMusic():
     def __init__(self):
         reload(sys)  
         sys.setdefaultencoding('utf8')   
-    #下载进度
+#     #下载进度
     def cbk(self,a, b, c):  
         try:
             per = 100.0 * a * b / c
@@ -54,8 +54,8 @@ class BaiDuMusic():
     def download(self,songid,songName,d,savePath="down/"):
         self.d = d
         songNewUrl = "http://music.baidu.com/data/music/file?link=&song_id="+str(songid)
-        if not os.path.isdir(savePath):	
-        	os.makedirs(savePath)
+        if not os.path.isdir(savePath): 
+            os.makedirs(savePath)
         savemp3 = savePath.decode('utf-8')+songName.decode('utf-8')+u".mp3"
         urllib.urlretrieve(songNewUrl, savemp3,self.cbk) 
         # self.down_id = os.getpid()
