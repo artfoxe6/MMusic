@@ -9,3 +9,5 @@ Because it write by python and qt,so it not only runing in linux,you can run it 
 
 If someone like this software and have some ideas to perfect it , please email to 631706073@qq.com ;
 
+<img src="https://github.com/codeAB/MMusic/blob/master/src/555.png" />
+<img src="https://github.com/codeAB/MMusic/blob/master/src/666.png" />
