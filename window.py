@@ -16,6 +16,26 @@ from search import *
 import ctypes
 #告诉windows我这个程序是单独的  不是python  否则设置任务栏图标无效
 # ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("myappid")
+styles = """
+	QLabel{color:white;border:none}
+	QSlider{width:300px;height:10px}
+	QPushButton{border:none;color:white}QPushButton:hover{color:blue}
+	QSlider::groove:horizontal { border: 1px solid #999999;height: 10px; margin: 0px 0;    }
+      	QSlider::handle:horizontal  { border: 1px solid #5c5c5c;border-image:url(src/ico.png);width: 18px;margin: -7px -7px -7px -7px; }
+      	QSlider::sub-page:horizontal{ background: QLinearGradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 orange, stop:0.25 
+              orange, stop:0.5 orange, stop:1 orange);    }
+      QSlider::add-page:horizontal{background:QLinearGradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #9EEAFD, 
+              stop:0.25 #5FF199, stop:0.5 #5FF199, stop:1 #9EEAFD);}
+	QLabel#bgHead{border-image:url(src/qqq.png);font:Serif;}
+	QWidget#lstWt{color:white;background:white;border:1px solid #9B0069;border-top:none;border-bottom:none;border-right:none}
+	QListWidget#songlist{color:gray;font-size:12px;background:#FAFAFD;}QScrollBar{width:0;height:0}
+	QWidget#foot{color:white;background:#6B7BAC;}
+	QPushButton#setBtnIcon{background-image:url(src/001.png);background-repeat:no-repeat;background-position:center}
+	QPushButton#mvBtn{background-image:url(src/002.png);background-repeat:no-repeat;background-position:center}
+	QPushButton#hotBtn{background-image:url(src/003.png);background-repeat:no-repeat;background-position:center}
+	QPushButton#newBtn{background-image:url(src/004.png);background-repeat:no-repeat;background-position:center}
+	QPushButton#seaBtn{background-image:url(src/005.png);background-repeat:no-repeat;background-position:center}
+"""
 
 class main(QWidget):
 	def __init__(self):
@@ -26,24 +46,17 @@ class main(QWidget):
 		self.addLayout()
 		self.player = player(self)
 		self.slowLayout()
+		self.setStyleSheet(styles)
 	def  addLayout(self):
-		# ==========================头部=================================
+		# ==========================头部=================================  
 		self.head = headWidget(self)   #这里的self就是被移动的窗口
 		self.head.setParent (self)  #这里的self是所属父级
-		self.setStyleSheet("QWidget{background:#9B0069;font:Serif;border:1px solid #9B0069;border-top:none;border-bottom:none}QLabel{color:white;border:none}\
-			QSlider{width:298px;height:10px}\
-			QPushButton{border:none;color:white}QPushButton:hover{color:blue}\
-			QSlider::groove:horizontal { border: 1px solid #999999;height: 10px; margin: 0px 0;    }\
-	            QSlider::handle:horizontal  { border: 1px solid #5c5c5c;border-image:url(src/ico.png);width: 18px;margin: -7px -7px -7px -7px; }\
-	            QSlider::sub-page:horizontal{ background: QLinearGradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #9EEAFD, stop:0.25 \
-	                #627BF3, stop:0.5 #627BF3, stop:1 #9EEAFD);    }\
-	            QSlider::add-page:horizontal{background:QLinearGradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #9EEAFD, \
-	                stop:0.25 #E6E6E6, stop:0.5 #E6E6E6, stop:1 #9EEAFD);}\
-	        VolumeSlider{background:red}\
-			")
+		self.head.setObjectName("head")
 		#滚动条样式参见：http://blog.sina.com.cn/s/blog_791f544a0100s2ml.html
 		self.head.setGeometry(0,0,300,200)
-		QLabel(self.head).resize(300,120)  #这个自定义myWidget里面必须有东西 不能为空，否则无法定义样式
+		bgLab = QLabel(self.head)
+		bgLab.setObjectName("bgHead")
+		bgLab.resize(300,120)  #这个自定义myWidget里面必须有东西 不能为空，否则无法定义样式
 		# label.resize(300,120)
 		# ----------------头部内部组件-------------------------
 		#------播放器名字
@@ -52,12 +65,12 @@ class main(QWidget):
 		closeBtn = QPushButton(u"╳",self.head) 
 		# closeBtn.setStyleSheet("QPushButton{border-image:url(src/close11.png)}")
 		closeBtn.setGeometry(260,5,30,20)
-		closeBtn.clicked.connect(self.quitit)
+		closeBtn.clicked.connect(self.hideit)
 		#------隐藏到托盘
 		hideBtn = QPushButton(u"一",self.head) 
 		# hideBtn.setStyleSheet("QPushButton{border-image:url(src/sam11.png)}")
 		hideBtn.setGeometry(220,5,30,20)
-		hideBtn.clicked.connect(self.hideit)
+		hideBtn.clicked.connect(self.minit)
 		# ------歌手头像
 		self.songerPic = QLabel(self.head)
 		self.songerPic.setGeometry(10,30,72,72)
@@ -71,34 +84,23 @@ class main(QWidget):
 		# ===========================进度条==============================
 		self.proWgt = QWidget(self)
 		self.proWgt.setGeometry(0, 110, 300,10)
-		self.proWgt.setStyleSheet("QWidget{background-color:#C9C9C9;border:1px solid #9B0069;border-top:none;border-bottom:none}\
-		    SeekSlider{width:300}")
 		# ===========================歌曲列表==============================
 		listWgt = QWidget(self)
 		listWgt.setGeometry(0, 120, 300,430)
-		listWgt.setStyleSheet("QWidget{color:white;background:white;border:1px solid #9B0069;border-top:none;border-bottom:none}")
+		listWgt.setObjectName("lstWt")
 		self.songList = QListWidget(listWgt)
 		self.songList.resize(260,430)   
-		self.songList.setStyleSheet("QListWidget{color:gray;font-size:12px;background:#FAFAFD;}\
-		    QScrollBar{width:0;height:0}\
-		    ")
+		self.songList.setObjectName("songlist")
+
 		self.songList.itemDoubleClicked.connect(self.playit)
 		# ================================音量========================
 		self.vluWgt = QWidget(self)
 		self.vluWgt.setGeometry(0, 550, 300,10)
-		self.vluWgt.setStyleSheet("QWidget{background-color:#C9C9C9;border:1px solid #9B0069;border-top:none;border-bottom:none}\
-		    SeekSlider{width:300}")
 		# =============================底部=============================
 		foot = QWidget(self)
 		foot.setGeometry(0, 560, 300,40)
-		foot.setStyleSheet("""QWidget{color:white;background:#9B0069;border:1px solid #9B0069;border-top:none;border-bottom:none}
-		QPushButton{border:none;color:white}QPushButton:hover{color:red}QPushButton#setBtnIcon{border-image:url(play.png)}
-		QPushButton#setBtnIcon{background-image:url(src/001.png);background-repeat:no-repeat;background-position:center}
-		QPushButton#mvBtn{background-image:url(src/002.png);background-repeat:no-repeat;background-position:center}
-		QPushButton#hotBtn{background-image:url(src/003.png);background-repeat:no-repeat;background-position:center}
-		QPushButton#newBtn{background-image:url(src/004.png);background-repeat:no-repeat;background-position:center}
-		QPushButton#seaBtn{background-image:url(src/005.png);background-repeat:no-repeat;background-position:center}
-		""")
+		foot.setObjectName("foot")
+
 		setBtn = QPushButton(u"",foot)
 		setBtn.setObjectName("setBtnIcon")
 		setBtn.setGeometry(0,0,60,40)
@@ -163,6 +165,8 @@ class main(QWidget):
 	# ===========================回调函数===========================
 	def quitit(self):
 		self.close()
+	def minit(self):
+		self.showMinimized()
 	def showit(self):
 		self.show()
 	def hideit(self):
@@ -289,27 +293,6 @@ class main(QWidget):
 		t.start()
 		t.join()
 		self.player.playlist()
-		# Process(target=bMusic.download, args=(str(songid),str(songname),d)).start()
-		# while int(d[0]) <=100:
-				# self.popSearch.myTable.cellWidget(int(d[1]), 3).setValue(d[0])	
-		# self.download(songid,str(songname))
-		# Process(target=self.download, args=(),self.per).start()
-	# ========================================================
-	# #歌曲下载
-	# def download(self,songid,songName,savePath="down/"):
-	# 	# self.pids.put(os.getpid())
-	# 	songNewUrl = "http://music.baidu.com/data/music/file?link=&song_id="+str(songid)
-	# 	if not os.path.isdir(savePath):	
-	# 		os.makedirs(savePath)
-	# 	savemp3 = savePath.decode('utf-8')+songName.decode('utf-8')+u".mp3"
-	# 	urllib.urlretrieve(songNewUrl, savemp3,self.cbk) 
-	# #下载进度显示
-	# def cbk(self,a, b, c):  
-	# 	per = 100.0 * a * b / c
-	# 	if per > 100:
-	# 		per = 100
-	# 	self.popSearch.myTable.cellWidget(int(self.index), 3).setValue(per)
-
 
 
 if __name__ == "__main__":

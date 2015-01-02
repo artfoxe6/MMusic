@@ -30,6 +30,12 @@ class player():
 		self.vlu = Phonon.VolumeSlider (self.audioOutput,window.vluWgt) 
 		self.vlu.setMuteVisible(False)
 		self.vlu.setMaximumVolume(1.5)
+		self.vlu.setStyleSheet("""
+			QSlider::sub-page:horizontal{ background:QLinearGradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #9EEAFD, 
+              stop:0.25 #5FF199, stop:0.5 #5FF199, stop:1 #9EEAFD);    }
+	            	QSlider::add-page:horizontal{background: QLinearGradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 orange, stop:0.25 
+              orange, stop:0.5 orange, stop:1 orange);}
+			""")
 		#----------加载播放列表--------
 		self.playlist()
 	def playlist(self):
@@ -45,7 +51,11 @@ class player():
 			listfile=os.listdir(songpath)
 		except Exception, e:
 			print e
-		for index ,value in enumerate (listfile): 
+		index = 0
+		for value in listfile:
+		# for index ,value in enumerate (listfile): 
+			if os.path.getsize(songpath+"/"+value) < 10:
+				continue
 			if value == '' or value[-3:] != 'mp3':
 				continue
 			self.songlist[index] = songpath+"/"+value
@@ -53,6 +63,7 @@ class player():
 			item = QListWidgetItem ("   "+str(index+1)+"   "+os.path.basename(value)[0:-4])
 			item.setSizeHint (QSize(250,35))
 			self.window.songList.addItem(item)
+			index+=1
 
     # ==============================指定播放======================================
 	def playit(self,songUrl=''):    
@@ -154,12 +165,6 @@ class player():
 				img = QImage("src/tray.jpg").scaled(70,120,Qt.KeepAspectRatio)
 			else:
 				img = QImage("src/temp.jpg").scaled(70,120,Qt.KeepAspectRatio)
-			# img = QImage("src/temp.jpg").scaled(70,120,Qt.KeepAspectRatio) or QImage("src/tray.jpg").scaled(70,120,Qt.KeepAspectRatio)
-				# img = img.scaled(70,120,Qt.KeepAspectRatio)
-			# except Exception,e:
-				# img = QImage("src/tray.jpg")
-				# img = img.scaled(70,120,Qt.KeepAspectRatio)
-				# print e
 			self.window.songerPic.setPixmap(QPixmap.fromImage(img))
 		elif newstate == Phonon.StoppedState:
 			pass
@@ -170,6 +175,8 @@ class player():
 		elif newstate == Phonon.ErrorState:  
 			source = self.mediaObject.currentSource().fileName()   #抛出播放出错的文件名
 			print 'ERROR: could not play:', source.toLocal8Bit().data()
+		else:
+			self.next()
 	def Finished(self):
 		self.next()
   # ========================事件集合========================================
