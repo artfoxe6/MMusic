@@ -131,7 +131,7 @@ class player():
 			#解析mp3文件得到歌曲专辑图片
 			files = File(str(self.mediaObject.currentSource().fileName()) )
 			# print files.tags
-			fc = open("src/temp.jpg","w")
+			fc = open("src/temp.jpg","wb")
 			try:
 				jpg = files.tags['APIC:e'].data
 				fc.write(jpg)

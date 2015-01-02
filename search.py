@@ -45,14 +45,17 @@ class BaiDuMusic():
                 tmpobj = json.loads(x['data-songitem'])
                 value = unicode(tmpobj['songItem']['oid'])+"+++"+unicode(tmpobj['songItem']['author'])+"+++"+unicode(tmpobj['songItem']['sname'])[4:-5]
                 res_arr.append(value)
-            for x in res_arr:
-                print x
+            # for x in res_arr:
+                # print x
             return res_arr
         except Exception, e:
             print u"抱歉没有找到相关资源".encode("utf-8")
             return 0
     def download(self,songid,songName,obj,savePath="down/"):
-        # songpath = open("local.py","r").read().split("+++")[0]
+        songpath = open("local.py","r").read().split("+++")[0]
+        if songpath != "":
+            # print songpath
+            savePath = songpath+"/"
         self.obj = obj
         songNewUrl = "http://music.baidu.com/data/music/file?link=&song_id="+str(songid)
         print songNewUrl
