@@ -1,4 +1,4 @@
-#!/user/bin/env python
+#!/usr/bin/env python
 #coding=utf-8
 """
 播放器框架，只负责外观，（基本）不涉及逻辑
